@@ -25,7 +25,13 @@ def about():
 
 # Show all restaurants
 @app.route('/categories/')
-def showRestaurants():
+def showCategories():
     cats = db.session.query(Category).all()
     return render_template('categories.html', categories=cats)
 
+
+# Show all items
+@app.route('/items')
+def showItems():
+    items = db.session.query(CatalogItem).all()
+    return render_template('items.html', items=items)

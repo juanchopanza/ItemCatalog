@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block title %}Catalog Items{% endblock %}
+
+
+{% block body %}
+    {{ super() }}
+	
+	<div class = 'pane'>
+		<div class = 'header'>
+		<h1>Catalog Items</h1>
+	</div>
+
+    {% for i in items %}
+    <div class = 'nameAndPrice'>
+		  <span class = 'name'><p>{{i.name}}</p></span>
+    </div>
+	
+	<div class = 'description'>
+		<p>{{i.description}}</p>
+	</div>
+	
+    {% endfor %}
+
+</div>
+
+{% endblock %}

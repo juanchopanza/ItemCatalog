@@ -6,9 +6,9 @@ from . import db
 Base = db.Model
 
 
-class Catalog(Base):
+class Category(Base):
 
-    __tablename__ = 'catalog'
+    __tablename__ = 'category'
     name = db.Column(db.String(128), nullable=False)
     id = db.Column(db.Integer, primary_key=True)
 
@@ -19,14 +19,15 @@ class Catalog(Base):
             'id': self.id
         }
 
+
 class CatalogItem(Base):
 
     __tablename__ = 'catalog_item'
     name = db.Column(db.String(128), nullable=False)
     id = db.Column(db.Integer, primary_key=True)
-    description = db.Column(db.String(250))
-    price = db.Column(db.String(8))
-    catalog = db.relationship(Catalog)
+    description = db.Column(db.String(255))
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
+    category = db.relationship(Category)
 
     @property
     def serialize(self):

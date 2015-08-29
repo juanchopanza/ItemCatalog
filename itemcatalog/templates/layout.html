@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+
+        <title>
+        {% block title %}
+        Catalog App
+        {% endblock %}
+        </title>
+
+        <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+    
+    </head>
+
+    <body>
+
+    {% block body %}
+        <div class="navbar">
+            <h1> Categories</h1>
+            <ul>
+                <li><a href = "{{ url_for('home')}}">Home </a></li>
+                <li><a href = "{{ url_for('about')}}">About </a></li>
+                <li><a href = "{{ url_for('showCategories')}}">Categories</a></li>
+                <li><a href = "{{ url_for('showItems')}}">Items</a></li>
+        </div>
+    {% endblock %}
+
+    <div class = 'flash'>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+            {% for message in messages %}
+                <li> <strong> {{ message }} </strong> </li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    </div>
+
+    </body>
+</html>

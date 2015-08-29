@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block title %}Categories{% endblock %}
+
+{% block body %}
+    {{ super() }}
+
+    <h2>Categories</h2>
+    <div>
+        <ul>
+        {% for i in categories %}
+            <li><a href="{{ url_for('showCategory', category_id=i.id)}}">{{i.name}}</a></li>
+        {% endfor %}
+        </ul>
+    </div>
+
+{% endblock %}

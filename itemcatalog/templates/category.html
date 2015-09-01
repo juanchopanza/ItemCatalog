@@ -14,15 +14,11 @@
 	<a href = '{{url_for('newCatalogItem', category_id = category.id) }}'>Create New Item</a>
 
     {% for i in items %}
-    <div class = 'nameAndPrice'>
-		<span class = 'name'><p>{{i.name}}</p></span>
-		<span class = 'price'>
-		    <p>{{i.price}} </p>
+    <div class = 'catalog-item'>
+		<span class = 'item-name'>{{i.name}}</span>
+		<span class = 'item-description'>
+		    <p>{{i.description}} </p>
 	    </span>
-	</div>
-	
-	<div class = 'description'>
-		<p>{{i.description}}</p>
 	</div>
 	
 	<div class = "editdeletepane">

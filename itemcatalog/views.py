@@ -32,11 +32,27 @@ def showCategories():
 
 # Show items for a given category
 @app.route('/category/<int:category_id>/')
-@app.route('/category/<int:category_id>/items/')
 def showCategoryItems(category_id):
     category = db.session.query(Category).filter_by(id=category_id).one()
     items = db.session.query(CatalogItem).filter_by(category_id=category.id)
     return render_template('category.html', category=category, items=items)
+
+
+# Show items for a given category
+@app.route('/category/<category_name>/items/')
+def showCategoryItemsFromName(category_name):
+    category = db.session.query(Category).filter(Category.name.ilike(category_name)).one()
+    items = db.session.query(CatalogItem).filter_by(category_id=category.id)
+    return render_template('category.html', category=category, items=items)
+
+
+# Show single item
+@app.route('/category/<category_name>/<item_name>/')
+def showItemFromNames(category_name, item_name):
+    category = db.session.query(Category).filter(Category.name.ilike(category_name)).one()
+    item = db.session.query(CatalogItem).filter_by(category_id=category.id,
+                                                   name=item_name).one()
+    return render_template('item.html', item=item)
 
 
 # Show all items

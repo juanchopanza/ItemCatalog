@@ -9,7 +9,7 @@ from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 import httplib2
 import requests
-from itemcatalog.models import Category, CatalogItem
+from itemcatalog.models import Category, CatalogItem, User
 from . import app
 from . import db
 from . import login_session
@@ -83,8 +83,12 @@ def showItems():
 # Create a new category
 @app.route('/admin/categories/new/', methods=('GET', 'POST'))
 def newCategory():
+    if 'username' not in login_session:
+        return redirect('/login')
     if request.method == 'POST':
-        category = Category(name=request.form['name'])
+        category = Category(
+            name=request.form['name'],
+            user_id=login_session['user_id'])
         db.session.add(category)
         db.session.commit()
         flash("new category %s created!" % category.name)
@@ -96,11 +100,14 @@ def newCategory():
 # Create a new item
 @app.route('/admin/category/<int:category_id>/new/', methods=['GET', 'POST'])
 def newCatalogItem(category_id):
+    if 'username' not in login_session:
+        return redirect('/login')
     if request.method == 'POST':
         newItem = CatalogItem(
             name=request.form['name'],
             description=request.form['description'],
-            category_id=category_id)
+            category_id=category_id,
+            user_id=login_session['user_id'])
         db.session.add(newItem)
         db.session.commit()
         flash("new catalog item %s created!" % newItem.name)
@@ -114,6 +121,8 @@ def newCatalogItem(category_id):
 @app.route('/admin/category/<int:category_id>/<int:item_id>/edit/',
            methods=('GET', 'POST'))
 def editCatalogItem(category_id, item_id):
+    if 'username' not in login_session:
+        return redirect('/login')
     editedItem = db.session.query(CatalogItem).filter_by(id=item_id, category_id=category_id).one()
     if request.method == 'POST':
         for attr in ('name', 'description', 'price'):
@@ -135,6 +144,8 @@ def editCatalogItem(category_id, item_id):
 @app.route('/admin/category/<int:category_id>/<int:item_id>/delete/',
            methods=('GET', 'POST'))
 def deleteCatalogItem(category_id, item_id):
+    if 'username' not in login_session:
+        return redirect('/login')
     item = db.session.query(CatalogItem).filter_by(id=item_id).one()
     if request.method == 'POST':
         name = item.name
@@ -222,6 +233,12 @@ def gconnect():
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
 
+    # If user doesn't exist, add to database
+    user_id = getUserID(login_session['email'])
+    if not user_id:
+        user_id = createUser(login_session)
+    login_session['user_id'] = user_id
+
     output = ''
     output += '<h1>Welcome, '
     output += login_session['username']
@@ -238,7 +255,7 @@ def gconnect():
 # Disonnect with google Oauth2 API
 # Revokes current user's token and resets their login_session
 # Taken from Udacity Authentication and Authorization Restaurant Menus example
-@app.route('/gdisconnect')
+@app.route('/gdisconnect/')
 def gdisconnect():
     # Only disconnect a connected user.
     credentials = login_session.get('credentials')
@@ -270,3 +287,29 @@ def gdisconnect():
             json.dumps('Failed to revoke token for given user.', 400))
         response.headers['Content-Type'] = 'application/json'
         return response
+
+
+# User Helper Functions.
+# Taken from Udacity Authentication and Authorization Restaurant Menus example.
+
+def createUser(login_session):
+    newUser = User(name=login_session['username'],
+                   email=login_session['email'],
+                   picture=login_session['picture'])
+    db.session.add(newUser)
+    db.session.commit()
+    user = db.session.query(User).filter_by(email=login_session['email']).one()
+    return user.id
+
+
+def getUserInfo(user_id):
+    user = db.session.query(User).filter_by(id=user_id).one()
+    return user
+
+
+def getUserID(email):
+    try:
+        user = db.session.query(User).filter_by(email=email).one()
+        return user.id
+    except:
+        return None

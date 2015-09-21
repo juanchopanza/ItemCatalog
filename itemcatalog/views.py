@@ -116,14 +116,32 @@ def newCatalogItem(category_id):
         return render_template('newitem.html', category_id=category_id)
 
 
+def _bad_user_alert(msg="You can't do this!"):
+    '''Helper for unauthorized user actions'''
+    script = """
+    <script>
+    function myFunction() {
+    alert('Unauthorized User: %s');
+    }
+    </script>
+    <body onload='myFunction()''>"""
+
+    return script % msg
+
 
 # Edit a catalog item
 @app.route('/admin/category/<int:category_id>/<int:item_id>/edit/',
            methods=('GET', 'POST'))
 def editCatalogItem(category_id, item_id):
+
     if 'username' not in login_session:
         return redirect('/login')
+
     editedItem = db.session.query(CatalogItem).filter_by(id=item_id, category_id=category_id).one()
+
+    if editedItem.user_id != login_session['user_id']:
+        return _bad_user_alert('You can only edit your own items.')
+
     if request.method == 'POST':
         for attr in ('name', 'description', 'price'):
             if request.form[attr]:
@@ -139,14 +157,19 @@ def editCatalogItem(category_id, item_id):
             item=editedItem)
 
 
-
 # Delete a menu item
 @app.route('/admin/category/<int:category_id>/<int:item_id>/delete/',
            methods=('GET', 'POST'))
 def deleteCatalogItem(category_id, item_id):
+
     if 'username' not in login_session:
         return redirect('/login')
+
     item = db.session.query(CatalogItem).filter_by(id=item_id).one()
+
+    if item.user_id != login_session['user_id']:
+        return _bad_user_alert('You are not authorized to delete this item.')
+
     if request.method == 'POST':
         name = item.name
         db.session.delete(item)

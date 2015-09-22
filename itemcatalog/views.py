@@ -35,6 +35,15 @@ def login():
     return render_template('login.html', STATE=state)
 
 
+# logout page
+@app.route('/logout/')
+def logout():
+    if 'username' in login_session:
+        response = gdisconnect()
+        flash("You have been successfully logged out!")
+    return redirect('/')
+
+
 # About page
 @app.route('/about/')
 def about():

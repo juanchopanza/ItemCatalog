@@ -90,7 +90,7 @@ def showItems():
 
 
 # Create a new category
-@app.route('/admin/categories/new/', methods=('GET', 'POST'))
+@app.route('/categories/new/', methods=('GET', 'POST'))
 def newCategory():
     if 'username' not in login_session:
         return redirect('/login')
@@ -107,7 +107,7 @@ def newCategory():
 
 
 # Create a new item
-@app.route('/admin/category/<int:category_id>/new/', methods=['GET', 'POST'])
+@app.route('/category/<int:category_id>/new/', methods=['GET', 'POST'])
 def newCatalogItem(category_id):
     if 'username' not in login_session:
         return redirect('/login')
@@ -139,7 +139,7 @@ def _bad_user_alert(msg="You can't do this!"):
 
 
 # Edit a catalog item
-@app.route('/admin/category/<int:category_id>/<int:item_id>/edit/',
+@app.route('/category/<int:category_id>/<int:item_id>/edit/',
            methods=('GET', 'POST'))
 def editCatalogItem(category_id, item_id):
 
@@ -167,7 +167,7 @@ def editCatalogItem(category_id, item_id):
 
 
 # Delete a menu item
-@app.route('/admin/category/<int:category_id>/<int:item_id>/delete/',
+@app.route('/category/<int:category_id>/<int:item_id>/delete/',
            methods=('GET', 'POST'))
 def deleteCatalogItem(category_id, item_id):
 

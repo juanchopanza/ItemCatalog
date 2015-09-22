@@ -6,6 +6,12 @@
     {{ super() }}
 
     <h2>Categories</h2>
+    <p>
+    This is the list of existing categories. You can add new categories 
+    {% if 'username' not in session %}
+    (requires <a href = "{{url_for('login')}}">login</a>.)
+    {% endif %}
+    </p>
     <div>
         <ul>
         {% for i in categories %}
@@ -13,5 +19,11 @@
         {% endfor %}
         </ul>
     </div>
+
+    {% if 'username' in session%}
+    <nav class="navbar">
+      <a href = "{{ url_for('newCategory')}}">Add a New Category</a>
+    </nav>
+    {% endif %}
 
 {% endblock %}

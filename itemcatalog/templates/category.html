@@ -11,7 +11,9 @@
 		<h1>{{ category.name }}</h1>
 	</div>
 
+  {% if 'username' in session %}
 	<a href = '{{url_for('newCatalogItem', category_id = category.id) }}'>Create New Item</a>
+  {% endif %}
 
     {% for i in items %}
     <div class = 'catalog-item'>
@@ -21,7 +23,9 @@
       </a>
     </span>
 	</div>
-	
+
+
+  {% if 'username' in session and i.user_id == session['user_id'] %}
 	<div class = "editdeletepane">
 
 	    <a href='{{url_for('editCatalogItem',category_id = category.id, item_id=i.id)}}' >
@@ -31,6 +35,7 @@
             Delete
         </a>
 	</div>
+  {% endif %}
 
     {% endfor %}
 

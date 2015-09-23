@@ -15,9 +15,11 @@
         <p>Description:</p>
         <input type='text' size='250' name='description' placeholder='{{item.description}}'>
         <p>Category</p>
+        <select name='category_id'>
         {% for c in categories %}
-        <input type='radio' name='category_id' value={{c.id}}>{{c.name}}</option>
+          <option name='category_id' value={{c.id}}>{{c.name}}</option>
         {% endfor %}
+        </select>
         </br></br>
         <input type='submit' value='Edit'>
     </form>

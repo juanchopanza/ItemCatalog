@@ -148,11 +148,12 @@ def editCatalogItem(category_id, item_id):
 
     editedItem = db.session.query(CatalogItem).filter_by(id=item_id, category_id=category_id).one()
 
+    categories = db.session.query(Category).all()
     if editedItem.user_id != login_session['user_id']:
         return _bad_user_alert('You can only edit your own items.')
 
     if request.method == 'POST':
-        for attr in ('name', 'description', 'price'):
+        for attr in ('name', 'description', 'category_id'):
             if request.form[attr]:
                 setattr(editedItem, attr, request.form[attr])
         db.session.commit()
@@ -163,7 +164,8 @@ def editCatalogItem(category_id, item_id):
             'editcatalogitem.html',
             category_id=category_id,
             item_id=item_id,
-            item=editedItem)
+            item=editedItem,
+            categories=categories)
 
 
 # Delete a menu item

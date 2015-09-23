@@ -8,13 +8,16 @@
 	
     <h2> Edit Catalog Item </h2>
 
-    <form action="{{url_for('editCatalogItem', category_id=category_id, item_id=item.id )}}" method = 'POST'>
+    <form action="{{url_for('editCatalogItem', category_id=category_id, item_id=item.id )}}"
+          method = 'POST'>
         <p>Name:</p>
         <input type='text' size='30' name='name' placeholder='{{item.name}}'>
         <p>Description:</p>
         <input type='text' size='250' name='description' placeholder='{{item.description}}'>
-        <p>Price:</p>
-        <input type='text' size='8' name='price' placeholder='{{item.price}}'>
+        <p>Category</p>
+        {% for c in categories %}
+        <input type='radio' name='category_id' value={{c.id}}>{{c.name}}</option>
+        {% endfor %}
         </br></br>
         <input type='submit' value='Edit'>
     </form>

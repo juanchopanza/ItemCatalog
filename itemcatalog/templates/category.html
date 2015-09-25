@@ -28,10 +28,10 @@
   {% if 'username' in session and i.user_id == session['user_id'] %}
 	<div class = "editdeletepane">
 
-	    <a href='{{url_for('editCatalogItem',category_id = category.id, item_id=i.id)}}' >
+	    <a class='btn' href='{{url_for('editCatalogItem',category_id = category.id, item_id=i.id)}}' >
             Edit
         </a>
-	    <a href='{{url_for('deleteCatalogItem', category_id = category.id, item_id=i.id)}}'>
+	    <a class='btn delete' href='{{url_for('deleteCatalogItem', category_id = category.id, item_id=i.id)}}'>
             Delete
         </a>
 	</div>

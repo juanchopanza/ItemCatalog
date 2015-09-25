@@ -143,12 +143,12 @@ a {
     margin: 45px 0;
 }
 
-.restaurant-list {
+.category-list {
     background-color: #F0F0F0;
     padding: 20px;
 }
 
-.restaurant-list:hover {
+.category-list:hover {
     background-color: #e1e17f;
     padding: 20px;
 }

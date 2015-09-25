@@ -4,7 +4,7 @@ import string
 import json
 from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask import make_response
-from flask import g
+from flask import g, session
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 import httplib2
@@ -12,7 +12,6 @@ import requests
 from itemcatalog.models import Category, CatalogItem, User
 from . import app
 from . import db
-from . import login_session
 
 
 CLIENT_ID = json.loads(
@@ -24,23 +23,28 @@ CLIENT_ID = json.loads(
 @app.route('/home/')
 @app.route('/index/')
 def home():
-    return render_template('index.html')
+    items = db.session.query(CatalogItem).all()
+    cats = db.session.query(Category).all()
+    return render_template('index.html', items=items, categories=cats)
 
 # login page
 @app.route('/login/')
 def login():
     state = ''.join([random.choice(string.ascii_uppercase + string.digits)
                     for i in xrange(32)])
-    login_session['state'] = state
+    session['state'] = state
     return render_template('login.html', STATE=state)
 
 
 # logout page
 @app.route('/logout/')
 def logout():
-    if 'username' in login_session:
+    if 'username'in session:
         response = gdisconnect()
-        flash("You have been successfully logged out!")
+        if response.status_code == 200:
+            flash("You have been successfully logged out!")
+        else:
+            flash("An error ocurred when loggin out. Better clear your browser session!")
     return redirect('/')
 
 
@@ -92,12 +96,12 @@ def showItems():
 # Create a new category
 @app.route('/categories/new/', methods=('GET', 'POST'))
 def newCategory():
-    if 'username' not in login_session:
+    if 'username' not in session:
         return redirect('/login')
     if request.method == 'POST':
         category = Category(
             name=request.form['name'],
-            user_id=login_session['user_id'])
+            user_id=session['user_id'])
         db.session.add(category)
         db.session.commit()
         flash("new category %s created!" % category.name)
@@ -109,14 +113,14 @@ def newCategory():
 # Create a new item
 @app.route('/category/<int:category_id>/new/', methods=['GET', 'POST'])
 def newCatalogItem(category_id):
-    if 'username' not in login_session:
+    if 'username' not in session:
         return redirect('/login')
     if request.method == 'POST':
         newItem = CatalogItem(
             name=request.form['name'],
             description=request.form['description'],
             category_id=category_id,
-            user_id=login_session['user_id'])
+            user_id=session['user_id'])
         db.session.add(newItem)
         db.session.commit()
         flash("new catalog item %s created!" % newItem.name)
@@ -143,13 +147,14 @@ def _bad_user_alert(msg="You can't do this!"):
            methods=('GET', 'POST'))
 def editCatalogItem(category_id, item_id):
 
-    if 'username' not in login_session:
+    if not {'username', 'user_id'} <= session.viewkeys():
         return redirect('/login')
 
     editedItem = db.session.query(CatalogItem).filter_by(id=item_id, category_id=category_id).one()
 
     categories = db.session.query(Category).all()
-    if editedItem.user_id != login_session['user_id']:
+
+    if editedItem.user_id != session['user_id']:
         return _bad_user_alert('You can only edit your own items.')
 
     if request.method == 'POST':
@@ -173,12 +178,12 @@ def editCatalogItem(category_id, item_id):
            methods=('GET', 'POST'))
 def deleteCatalogItem(category_id, item_id):
 
-    if 'username' not in login_session:
+    if 'username' not in session:
         return redirect('/login')
 
     item = db.session.query(CatalogItem).filter_by(id=item_id).one()
 
-    if item.user_id != login_session['user_id']:
+    if item.user_id != session['user_id']:
         return _bad_user_alert('You are not authorized to delete this item.')
 
     if request.method == 'POST':
@@ -197,8 +202,8 @@ def deleteCatalogItem(category_id, item_id):
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
     # Validate state token
-    if request.args.get('state') != login_session['state']:
-        print 'BAD STATE \n%s\n%s' % (request.args.get('state'), login_session['state'])
+    if request.args.get('state') != session['state']:
+        print 'BAD STATE \n%s\n%s' % (request.args.get('state'), session['state'])
         response = make_response(json.dumps('Invalid state parameter.'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
@@ -244,8 +249,8 @@ def gconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
 
-    stored_credentials = login_session.get('credentials')
-    stored_gplus_id = login_session.get('gplus_id')
+    stored_credentials = session.get('credentials')
+    stored_gplus_id = session.get('gplus_id')
     if stored_credentials is not None and gplus_id == stored_gplus_id:
         response = make_response(json.dumps('Current user is already connected.'),
                                  200)
@@ -253,8 +258,8 @@ def gconnect():
         return response
 
     # Store the access token in the session for later use.
-    login_session['credentials'] = credentials.access_token
-    login_session['gplus_id'] = gplus_id
+    session['credentials'] = credentials.access_token
+    session['gplus_id'] = gplus_id
 
     # Get user info
     userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
@@ -263,36 +268,36 @@ def gconnect():
 
     data = answer.json()
 
-    login_session['username'] = data['name']
-    login_session['picture'] = data['picture']
-    login_session['email'] = data['email']
+    session['username'] = data['name']
+    session['picture'] = data['picture']
+    session['email'] = data['email']
 
     # If user doesn't exist, add to database
-    user_id = getUserID(login_session['email'])
+    user_id = getUserID(session['email'])
     if not user_id:
-        user_id = createUser(login_session)
-    login_session['user_id'] = user_id
+        user_id = createUser(session)
+    session['user_id'] = user_id
 
     output = ''
     output += '<h1>Welcome, '
-    output += login_session['username']
+    output += session['username']
     output += '!</h1>'
     output += '<img src="'
-    output += login_session['picture']
+    output += session['picture']
     output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
-    flash("you are now logged in as %s" % login_session['username'])
+    flash("you are now logged in as %s" % session['username'])
     print "done!"
     return output
 
 
 
 # Disonnect with google Oauth2 API
-# Revokes current user's token and resets their login_session
+# Revokes current user's token and resets their session
 # Taken from Udacity Authentication and Authorization Restaurant Menus example
 @app.route('/gdisconnect/')
 def gdisconnect():
     # Only disconnect a connected user.
-    credentials = login_session.get('credentials')
+    credentials = session.get('credentials')
     if credentials is None:
         response = make_response(
             json.dumps('Current user not connected.'), 401)
@@ -306,11 +311,12 @@ def gdisconnect():
     print 'GDISCONNECT result', result
     if result['status'] == '200':
         # Reset the user's sesson.
-        del login_session['credentials']
-        del login_session['gplus_id']
-        del login_session['username']
-        del login_session['email']
-        del login_session['picture']
+        del session['username']
+        del session['credentials']
+        del session['gplus_id']
+        del session['user_id']
+        del session['email']
+        del session['picture']
 
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
@@ -322,6 +328,16 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
 
+
+@app.route('/debug/session')
+def _dump_session():
+    ret = { k: session.get(k) for k in ('username', 'user_id', 'gplus_id', 'email')}
+    return json.dumps(ret)
+
+@app.route('/debug/clearsession/')
+def _clear_session():
+    session.clear()
+    return redirect('/')
 
 # User Helper Functions.
 # Taken from Udacity Authentication and Authorization Restaurant Menus example.

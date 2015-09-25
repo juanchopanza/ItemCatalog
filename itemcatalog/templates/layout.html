@@ -25,6 +25,7 @@
           {% if 'username' not in session%}
           <a href = "{{ url_for('login')}}">Login</a>
           {% else %}
+          <span>Logged in as {{session['username']}}</span>
           <a href = "{{ url_for('logout')}}">Logout</a>
           {% endif %}
         </nav>

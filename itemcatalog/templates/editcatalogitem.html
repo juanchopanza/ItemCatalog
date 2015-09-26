@@ -5,7 +5,7 @@
 
 {% block body %}
     {{ super() }}
-	
+
     <h2> Edit Catalog Item </h2>
 
     <form action="{{url_for('editCatalogItem', category_id=category_id, item_id=item.id )}}"
@@ -17,7 +17,8 @@
         <p>Category</p>
         <select name='category_id'>
         {% for c in categories %}
-          <option name='category_id' value={{c.id}}>{{c.name}}</option>
+        <option name='category_id' value={{c.id}}
+        {%if c.id == item.category_id %} selected {% endif %}>{{c.name}}</option>
         {% endfor %}
         </select>
         </br></br>

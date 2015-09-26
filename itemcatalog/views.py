@@ -147,7 +147,7 @@ def _bad_user_alert(msg="You can't do this!"):
            methods=('GET', 'POST'))
 def editCatalogItem(category_id, item_id):
 
-    if not {'username', 'user_id'} <= session.viewkeys():
+    if 'username' not in session:
         return redirect('/login')
 
     editedItem = db.session.query(CatalogItem).filter_by(id=item_id, category_id=category_id).one()

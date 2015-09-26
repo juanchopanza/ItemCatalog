@@ -1,18 +1,20 @@
-<!DOCTYPE html>
+{% extends "layout.html" %}
+
 <!-- Taken from Udacity Authentication and Authorizaiton Restaurant Menus example -->
-<html>
-<head>
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js">
-</script>
+{% block scripts %}
+{{ super() }}
 
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 <script src="//apis.google.com/js/platform.js?onload=start"> </script>
 
-</head>
+{% endblock %}
 
+{% block body %}
 
-<body>  
+{{ super() }}
 
+<br>
 
 
 <div id="signInButton">
@@ -22,7 +24,7 @@
         data-redirecturi="postmessage"
         data-accesstype="offline"
         data-cookiepolicy="single_host_origin"
-        data-callback="signInCallback"
+        data-callback="googleSignInCallback"
         data-approvalprompt="force">
     </span>
 </div>
@@ -31,7 +33,7 @@
 
 <script>
 
-function signInCallback(authResult) {
+function googleSignInCallback(authResult) {
     if (authResult['code']) {
         // Hide the sign-in button now that the user is authorized
         $('#signinButton').attr('style', 'display: none');
@@ -60,6 +62,5 @@ function signInCallback(authResult) {
 }
 </script>
 
-</body>
+{% endblock %}
 
-</html>

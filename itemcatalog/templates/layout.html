@@ -17,6 +17,10 @@
 
     <body>
 
+    {% block body_preamble %}
+    <!-- For code that must precede anything else. -->
+    {% endblock %}
+
     {% block body %}
     <header>
         <nav class="navbar">

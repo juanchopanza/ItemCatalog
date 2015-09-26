@@ -17,8 +17,8 @@
 
     <body>
 
-    <header>
     {% block body %}
+    <header>
         <nav class="navbar">
           <a href = "{{ url_for('home')}}">Home </a>
           <a href = "{{ url_for('about')}}">About </a>
@@ -31,7 +31,7 @@
           <a href = "{{ url_for('logout')}}">Logout</a>
           {% endif %}
         </nav>
-    {% endblock %}
+  </header>
 
     <div class = 'flash'>
     {% with messages = get_flashed_messages() %}
@@ -45,7 +45,7 @@
     {% endwith %}
     </div>
 
-  </header>
 
+    {% endblock %}
     </body>
 </html>

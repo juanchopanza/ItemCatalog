@@ -411,7 +411,7 @@ def fbdisconnect():
     access_token = session['access_token']
     url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id,access_token)
     h = httplib2.Http()
-    result = h.request(url, 'DELETE')[1]
+    result = h.request(url, 'DELETE')[0]
 
     print 'FBISCONNECT result', result
     if result['status'] == '200':

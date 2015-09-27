@@ -24,7 +24,7 @@ Requires: `pip`, `virtualenv`.
 
 First, initialize the virtual machine:
 
-    vagrant u
+    vagrant up
 
 This might take a few minutes. Go make yourself a coffee.
 
@@ -32,6 +32,8 @@ Next, log into the virtual machine and change to the shared directory:
 
     vagrant ssh # logs you in as user "vagrant"
     cd /vagrant
+
+Requires: `vagrant`
 
 #### Initialize the database and launch the application
 

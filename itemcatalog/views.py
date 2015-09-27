@@ -42,13 +42,13 @@ def logout():
     provider = session.get('provider')
     if provider is not None:
         if provider == 'google':
-            response = gdisconnect()
+            response = _gdisconnect()
         elif provider == 'facebook':
-            response = fbdisconnect()
+            response = _fbdisconnect()
 
         _clear_session()
 
-        if response.status_code == 200:
+        if response['status'] == '200':
             flash("You have been successfully logged out!")
         else:
             flash("An error ocurred when loggin out. Your browser session has been cleared!")
@@ -292,7 +292,7 @@ def gconnect():
 
     flash("you are now logged in as %s" % session['username'])
 
-    return loginWelcome(session)
+    return _loginWelcome(session)
 
 
 @app.route('/fbconnect', methods=['POST'])
@@ -349,57 +349,7 @@ def fbconnect():
 
     flash("Now logged in as %s" % session['username'])
 
-    return loginWelcome(session)
-
-
-# Disonnect with google Oauth2 API
-# Revokes current user's token and resets their session
-# Taken from Udacity Authentication and Authorization Restaurant Menus example
-@app.route('/gdisconnect/')
-def gdisconnect():
-    # Only disconnect a connected user.
-    access_token = session.get('access_token')
-    if access_token is None:
-        response = make_response(
-            json.dumps('Current user not connected.'), 401)
-        response.headers['Content-Type'] = 'application/json'
-        return response
-
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
-    h = httplib2.Http()
-    result = h.request(url, 'GET')[0]
-
-    if result['status'] == '200':
-        response = make_response(
-            json.dumps('Successfully disconnected.'), 200)
-    else:
-        # For whatever reason, the given token was invalid.
-        response = make_response(
-            json.dumps('Failed to revoke token for given user.'), 400)
-
-    response.headers['Content-Type'] = 'application/json'
-    return response
-
-@app.route('/fbdisconnect')
-def fbdisconnect():
-    facebook_id = session['facebook_id']
-    # The access token must be included to successfully logout
-    access_token = session['access_token']
-    url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id,access_token)
-    h = httplib2.Http()
-    result = h.request(url, 'DELETE')[0]
-
-    print 'FBISCONNECT result', result
-    if result['status'] == '200':
-        response = make_response(
-            json.dumps('Successfully disconnected.'), 200)
-    else:
-        # For whatever reason, the given token was invalid.
-        response = make_response(
-            json.dumps('Failed to revoke token for given user.', 400))
-
-    response.headers['Content-Type'] = 'application/json'
-    return response
+    return _loginWelcome(session)
 
 
 @app.route('/debug/session')
@@ -416,7 +366,40 @@ def _clear_session():
 
 # Helper functions
 
-def loginWelcome(session):
+# Disonnect with google Oauth2 API
+# Revokes current user's token and resets their session
+# Based on exmple from Udacity Authentication and Authorization Restaurant Menus
+def _gdisconnect():
+    # Only disconnect a connected user.
+    access_token = session.get('access_token')
+    if access_token is None:
+        response = make_response(
+            json.dumps('Current user not connected.'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
+    h = httplib2.Http()
+    result = h.request(url, 'GET')[0]
+    print 'GDISCONNECT result', result
+    return result
+
+
+# Disonnect with facebook Oauth2 API
+# Revokes current user's token and resets their session
+# Based on example from Udacity Authentication and Authorization Restaurant Menus
+def _fbdisconnect():
+    facebook_id = session['facebook_id']
+    # The access token must be included to successfully logout
+    access_token = session['access_token']
+    url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id,access_token)
+    h = httplib2.Http()
+    result = h.request(url, 'DELETE')[0]
+    print 'FBISCONNECT result', result
+    return result
+
+
+def _loginWelcome(session):
 
     output = '''
     <h1>Welcome %s!</h1>

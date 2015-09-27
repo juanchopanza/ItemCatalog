@@ -43,23 +43,15 @@ def logout():
     if provider is not None:
         if provider == 'google':
             response = gdisconnect()
-            del session['gplus_id']
-            del session['credentials']
         elif provider == 'facebook':
             response = fbdisconnect()
-            del session['facebook_id']
 
-        del session['username']
-        del session['email']
-        del session['picture']
-        del session['user_id']
-        del session['provider']
+        _clear_session()
 
         if response.status_code == 200:
             flash("You have been successfully logged out!")
         else:
-            _clear_session()
-            flash("An error ocurred when loggin out. Browser session cleared!")
+            flash("An error ocurred when loggin out. Your browser session has been cleared!")
     else:
         flash('You were not logged in')
 
@@ -267,9 +259,9 @@ def gconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
 
-    stored_credentials = session.get('credentials')
+    stored_token = session.get('access_token')
     stored_gplus_id = session.get('gplus_id')
-    if stored_credentials is not None and gplus_id == stored_gplus_id:
+    if stored_token is not None and gplus_id == stored_gplus_id:
         response = make_response(json.dumps('Current user is already connected.'),
                                  200)
         response.headers['Content-Type'] = 'application/json'
@@ -277,7 +269,7 @@ def gconnect():
 
     # Store the access token in the session for later use.
     session['provider'] = 'google'
-    session['credentials'] = credentials.access_token
+    session['access_token'] = credentials.access_token
     session['gplus_id'] = gplus_id
 
     # Get user info
@@ -293,20 +285,14 @@ def gconnect():
 
     # If user doesn't exist, add to database
     user_id = getUserID(session['email'])
+
     if not user_id:
         user_id = createUser(session)
     session['user_id'] = user_id
 
-    output = ''
-    output += '<h1>Welcome, '
-    output += session['username']
-    output += '!</h1>'
-    output += '<img src="'
-    output += session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
     flash("you are now logged in as %s" % session['username'])
-    print "done!"
-    return output
+
+    return loginWelcome(session)
 
 
 @app.route('/fbconnect', methods=['POST'])
@@ -328,8 +314,6 @@ def fbconnect():
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
 
-    # Use token to get user info from API
-    userinfo_url = "https://graph.facebook.com/v2.4/me"
     # strip expire tag from access token
     token = result.split("&")[0]
 
@@ -363,17 +347,10 @@ def fbconnect():
         user_id = createUser(session)
     session['user_id'] = user_id
 
-    output = ''
-    output += '<h1>Welcome, '
-    output += session['username']
-
-    output += '!</h1>'
-    output += '<img src="'
-    output += session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
-
     flash("Now logged in as %s" % session['username'])
-    return output
+
+    return loginWelcome(session)
+
 
 # Disonnect with google Oauth2 API
 # Revokes current user's token and resets their session
@@ -381,33 +358,32 @@ def fbconnect():
 @app.route('/gdisconnect/')
 def gdisconnect():
     # Only disconnect a connected user.
-    credentials = session.get('credentials')
-    if credentials is None:
+    access_token = session.get('access_token')
+    if access_token is None:
         response = make_response(
             json.dumps('Current user not connected.'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
 
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % credentials
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
 
     if result['status'] == '200':
         response = make_response(
             json.dumps('Successfully disconnected.'), 200)
-        response.headers['Content-Type'] = 'application/json'
     else:
         # For whatever reason, the given token was invalid.
         response = make_response(
             json.dumps('Failed to revoke token for given user.'), 400)
-        response.headers['Content-Type'] = 'application/json'
 
+    response.headers['Content-Type'] = 'application/json'
     return response
 
 @app.route('/fbdisconnect')
 def fbdisconnect():
     facebook_id = session['facebook_id']
-    # The access token must me included to successfully logout
+    # The access token must be included to successfully logout
     access_token = session['access_token']
     url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id,access_token)
     h = httplib2.Http()
@@ -417,24 +393,41 @@ def fbdisconnect():
     if result['status'] == '200':
         response = make_response(
             json.dumps('Successfully disconnected.'), 200)
-        response.headers['Content-Type'] = 'application/json'
     else:
         # For whatever reason, the given token was invalid.
         response = make_response(
             json.dumps('Failed to revoke token for given user.', 400))
-        response.headers['Content-Type'] = 'application/json'
+
+    response.headers['Content-Type'] = 'application/json'
     return response
 
 
 @app.route('/debug/session')
 def _dump_session():
-    ret = { k: session.get(k) for k in ('username', 'user_id', 'gplus_id', 'email')}
+    ret = [session.keys(),
+           { k: session.get(k) for k in ('username', 'user_id', 'gplus_id', 'email')}]
     return json.dumps(ret)
 
 @app.route('/debug/clearsession/')
 def _clear_session():
     session.clear()
     return redirect('/')
+
+
+# Helper functions
+
+def loginWelcome(session):
+
+    output = '''
+    <h1>Welcome %s!</h1>
+    <img src=%s style="width: 300px;
+    height: 300px;border-radius: 150px;
+    -webkit-border-radius: 150px;
+    -moz-border-radius: 150px;">''' % (session['username'],
+                                       session['picture'])
+
+    return output
+
 
 # User Helper Functions.
 # Taken from Udacity Authentication and Authorization Restaurant Menus example.

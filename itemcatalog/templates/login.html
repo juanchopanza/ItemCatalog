@@ -75,7 +75,7 @@
 
 <br>
 
-
+<!-- Google sign-in button -->
 <div id="signInButton">
     <span class="g-signin"
         data-scope="openid email"
@@ -88,9 +88,18 @@
     </span>
 </div>
 
+
+<!-- Facebook sign-in button -->
+<button>
+  <fb:login-button scope="public_profile,email" onlogin="sendTokenToServer();">
+  <a href='javascript:sendTokenToServer()'>Login with Facebook</a>
+  </fb:login-button>
+</button>
+
+<br>
 <div id="result"></div>
 
-<!-- Google sign-in -->
+<!-- Google sign-in callback-->
 
 <script>
 
@@ -123,12 +132,6 @@ function googleSignInCallback(authResult) {
 }
 </script>
 
-
-<button>
-  <fb:login-button scope="public_profile,email" onlogin="sendTokenToServer();">
-  <a href='javascript:sendTokenToServer()'>Login with Facebook</a>
-  </fb:login-button>
-</button>
 
 {% endblock %}
 

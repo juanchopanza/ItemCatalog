@@ -55,5 +55,5 @@ class CatalogItem(Base):
             'name': self.name,
             'description': self.description,
             'id': self.id,
-            'price': self.price,
+            'category_id': self.category_id
         }

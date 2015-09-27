@@ -4,7 +4,7 @@ import string
 import json
 from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask import make_response
-from flask import g, session
+from flask import g, session, jsonify
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 import httplib2
@@ -64,7 +64,7 @@ def about():
     return render_template('about.html')
 
 
-# Show all categorys
+# Show all categories
 @app.route('/categories/')
 def showCategories():
     cats = db.session.query(Category).all()
@@ -206,6 +206,28 @@ def deleteCatalogItem(category_id, item_id):
         return render_template('deletecatalogitem.html',
                                item=item)
 
+
+# API end-points ===============================================================
+
+# API end-point to get all categories with items
+@app.route('/categories/JSON/')
+def getCategoriesJSON():
+    cats = db.session.query(Category).all()
+    _cats = [c.serialize for c in cats]
+    for _c in _cats:
+        items = db.session.query(CatalogItem).filter_by(category_id=_c['id'])
+        _c['items'] = [i.serialize for i in items]
+    return jsonify(Categories=_cats)
+
+# API end-point to get items for a given category ID
+@app.route('/category/<int:category_id>/JSON/')
+def getCategoryItemsJSON(category_id):
+    category = db.session.query(Category).filter_by(id=category_id).one()
+    items = db.session.query(CatalogItem).filter_by(category_id=category.id)
+    return jsonify(Category=[i.serialize for i in items])
+
+
+# Authorization / Authentication ===============================================
 
 # Connect with google Oauth2 API
 # Taken from Udacity Authentication and Authorization Restaurant Menus example

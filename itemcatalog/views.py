@@ -84,6 +84,12 @@ def showItems():
     items = db.session.query(CatalogItem).all()
     return render_template('allitems.html', items=items)
 
+@app.route('/item/<int:id>/')
+def showItem(id):
+    '''Show a single item'''
+    item = db.session.query(CatalogItem).filter_by(id=id).one()
+    return render_template('item.html', item=item)
+
 
 @app.route('/categories/new/', methods=('GET', 'POST'))
 @utils.login_required
@@ -193,27 +199,21 @@ def getCategoryItemsJSON(category_id):
 # Authorization / Authentication ===============================================
 
 @app.route('/gconnect', methods=['POST'])
+@utils.check_state_token
 def gconnect():
     ''' Connect with google Oauth2 API
 
     Taken from Udacity Authentication and Authorization Restaurant Menus example
     '''
 
-    # Validate state token
-    if request.args.get('state') != session['state']:
-        print 'BAD STATE \n%s\n%s' % (request.args.get('state'), session['state'])
-        response = make_response(json.dumps('Invalid state parameter.'), 401)
-        response.headers['Content-Type'] = 'application/json'
-        return response
-
     # Obtain authorization code
-    code = request.data
+    auth_code = request.data
 
     try:
         # Upgrade the authorization code into a credentials object
         oauth_flow = flow_from_clientsecrets('client_secrets.json', scope='')
         oauth_flow.redirect_uri = 'postmessage'
-        credentials = oauth_flow.step2_exchange(code)
+        credentials = oauth_flow.step2_exchange(auth_code)
     except FlowExchangeError:
         response = make_response(
             json.dumps('Failed to upgrade the authorization code.'), 401)
@@ -240,10 +240,10 @@ def gconnect():
         return response
 
     # Verify that the access token is valid for this app.
-    CLIENT_ID = json.loads(
+    client_id = json.loads(
         open('client_secrets.json', 'r').read())['web']['client_id']
 
-    if result['issued_to'] != CLIENT_ID:
+    if result['issued_to'] != client_id:
         response = make_response(
             json.dumps("Token's client ID does not match app's."), 401)
         print "Token's client ID does not match app's."
@@ -268,15 +268,12 @@ def gconnect():
 
 
 @app.route('/fbconnect', methods=['POST'])
+@utils.check_state_token
 def fbconnect():
     ''' Connect with facebook Oauth2 API
 
     Taken from Udacity Authentication and Authorization Restaurant Menus example
     '''
-    if request.args.get('state') != session['state']:
-        response = make_response(json.dumps('Invalid state parameter.'), 401)
-        response.headers['Content-Type'] = 'application/json'
-        return response
 
     access_token = request.data
     print "access token received %s " % access_token

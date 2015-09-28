@@ -18,7 +18,7 @@
     {% for i in items %}
     <div class = 'catalog-item'>
 		<span class = 'item-name'>
-      <a href = '{{url_for('showItemFromNames', category_name = category.name, item_name = i.name)}}'>
+      <a href = '{{url_for('showItem', id = i.id)}}'>
         {{i.name}}
       </a>
     </span>

@@ -4,7 +4,7 @@ from functools import wraps
 import json
 import httplib2
 import requests
-from flask import session, request, redirect, url_for, flash
+from flask import session, request, redirect, url_for, flash, make_response
 from .models import User
 from . import db
 
@@ -24,8 +24,23 @@ def login_required(f):
             flash('The page you visited requires you to be logged in!')
             return redirect(url_for('login', next=request.url))
         return f(*args, **kwargs)
+
     return decorated_function
 
+
+def check_state_token(f):
+    '''Decorator to check request state against session state'''
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # Validate state token
+        if request.args.get('state') != session['state']:
+            print 'BAD STATE \n%s\n%s' % (request.args.get('state'), session['state'])
+            response = make_response(json.dumps('Invalid state parameter.'), 401)
+            response.headers['Content-Type'] = 'application/json'
+            return response
+        return f(*args, **kwargs)
+
+    return decorated_function
 
 # User Helper Functions.
 # Taken from Udacity Authentication and Authorization Restaurant Menus example.

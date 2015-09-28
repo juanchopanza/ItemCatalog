@@ -10,12 +10,10 @@ from oauth2client.client import FlowExchangeError
 import httplib2
 import requests
 from itemcatalog.models import Category, CatalogItem, User
+from itemcatalog import utils
 from . import app
 from . import db
 
-
-CLIENT_ID = json.loads(
-    open('client_secrets.json', 'r').read())['web']['client_id']
 
 # Home page
 @app.route('/')
@@ -64,67 +62,71 @@ def about():
     return render_template('about.html')
 
 
-# Show all categories
 @app.route('/categories/')
 def showCategories():
+    '''Show all categories'''
     cats = db.session.query(Category).all()
     return render_template('categories.html', categories=cats)
 
 
-# Show items for a given category
 @app.route('/category/<int:category_id>/')
 def showCategoryItems(category_id):
+    '''Show items for a given category id'''
     category = db.session.query(Category).filter_by(id=category_id).one()
     items = db.session.query(CatalogItem).filter_by(category_id=category.id)
     return render_template('category.html', category=category, items=items)
 
 
-# Show items for a given category
 @app.route('/category/<category_name>/items/')
 def showCategoryItemsFromName(category_name):
-    category = db.session.query(Category).filter(Category.name.ilike(category_name)).one()
+    '''Show items for a given category name'''
+    category = db.session.query(Category).filter(
+        Category.name.ilike(category_name)).one()
+
     items = db.session.query(CatalogItem).filter_by(category_id=category.id)
+
     return render_template('category.html', category=category, items=items)
 
 
-# Show single item
 @app.route('/category/<category_name>/<item_name>/')
 def showItemFromNames(category_name, item_name):
-    category = db.session.query(Category).filter(Category.name.ilike(category_name)).one()
+    '''Show single item'''
+    category = db.session.query(Category).filter(
+        Category.name.ilike(category_name)).one()
+
     item = db.session.query(CatalogItem).filter_by(category_id=category.id,
                                                    name=item_name).one()
+
     return render_template('item.html', item=item)
 
 
-# Show all items
 @app.route('/items/')
 def showItems():
+    '''Show all items'''
     items = db.session.query(CatalogItem).all()
     return render_template('allitems.html', items=items)
 
 
-# Create a new category
 @app.route('/categories/new/', methods=('GET', 'POST'))
+@utils.login_required
 def newCategory():
-    if 'username' not in session:
-        return redirect('/login')
+    '''Create a new category'''
     if request.method == 'POST':
         category = Category(
             name=request.form['name'],
             user_id=session['user_id'])
         db.session.add(category)
         db.session.commit()
-        flash("new category %s created!" % category.name)
+        flash("New category %s created!" % category.name)
         return redirect(url_for('showCategoryItems', category_id=category.id))
     else:
         return render_template('newcategory.html')
 
 
-# Create a new item
 @app.route('/category/<int:category_id>/new/', methods=['GET', 'POST'])
+@utils.login_required
 def newCatalogItem(category_id):
-    if 'username' not in session:
-        return redirect('/login')
+    '''Create a new item'''
     if request.method == 'POST':
         newItem = CatalogItem(
             name=request.form['name'],
@@ -133,48 +135,33 @@ def newCatalogItem(category_id):
             user_id=session['user_id'])
         db.session.add(newItem)
         db.session.commit()
-        flash("new catalog item %s created!" % newItem.name)
+        flash("New catalog item %s created!" % newItem.name)
         return redirect(url_for('showCategoryItems', category_id=category_id))
     else:
         return render_template('newitem.html', category_id=category_id)
 
 
-def _bad_user_alert(msg="You can't do this!"):
-    '''Helper for unauthorized user actions'''
-    script = """
-    <script>
-    function myFunction() {
-    alert('Unauthorized User: %s');
-    }
-    </script>
-    <body onload='myFunction()''>"""
-
-    return script % msg
-
-
-# Edit a catalog item
 @app.route('/category/<int:category_id>/<int:item_id>/edit/',
            methods=('GET', 'POST'))
+@utils.login_required
 def editCatalogItem(category_id, item_id):
-
-    if 'username' not in session:
-        return redirect('/login')
-
-    editedItem = db.session.query(CatalogItem).filter_by(id=item_id, category_id=category_id).one()
-
-    categories = db.session.query(Category).all()
+    '''Edit a catalog item'''
+    editedItem = db.session.query(CatalogItem).filter_by(
+        id=item_id, category_id=category_id).one()
 
     if editedItem.user_id != session['user_id']:
-        return _bad_user_alert('You can only edit your own items.')
+        flash("You are not authorized to edit this item!")
+        return redirect(url_for('showCategoryItems', category_id=category_id))
 
     if request.method == 'POST':
         for attr in ('name', 'description', 'category_id'):
             if request.form[attr]:
                 setattr(editedItem, attr, request.form[attr])
         db.session.commit()
-        flash("catalog item %s edited!" % editedItem.name)
+        flash("Catalog item %s edited!" % editedItem.name)
         return redirect(url_for('showCategoryItems', category_id=category_id))
     else:
+        categories = db.session.query(Category).all()
         return render_template(
             'editcatalogitem.html',
             category_id=category_id,
@@ -183,24 +170,23 @@ def editCatalogItem(category_id, item_id):
             categories=categories)
 
 
-# Delete a menu item
 @app.route('/category/<int:category_id>/<int:item_id>/delete/',
            methods=('GET', 'POST'))
+@utils.login_required
 def deleteCatalogItem(category_id, item_id):
-
-    if 'username' not in session:
-        return redirect('/login')
+    '''Delete a catalog item'''
 
     item = db.session.query(CatalogItem).filter_by(id=item_id).one()
 
     if item.user_id != session['user_id']:
-        return _bad_user_alert('You are not authorized to delete this item.')
+        flash('You are not authorized to delete this item!')
+        return redirect(url_for('showCategoryItems', category_id=category_id))
 
     if request.method == 'POST':
         name = item.name
         db.session.delete(item)
         db.session.commit()
-        flash("catalog item %s deleted!" % name)
+        flash("Catalog item %s deleted!" % name)
         return redirect(url_for('showCategoryItems', category_id=category_id))
     else:
         return render_template('deletecatalogitem.html',
@@ -229,10 +215,15 @@ def getCategoryItemsJSON(category_id):
 
 # Authorization / Authentication ===============================================
 
-# Connect with google Oauth2 API
-# Taken from Udacity Authentication and Authorization Restaurant Menus example
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
+    ''' Connect with google Oauth2 API
+
+    Taken from Udacity Authentication and Authorization Restaurant Menus example
+    '''
+    CLIENT_ID = json.loads(
+        open('client_secrets.json', 'r').read())['web']['client_id']
+
     # Validate state token
     if request.args.get('state') != session['state']:
         print 'BAD STATE \n%s\n%s' % (request.args.get('state'), session['state'])
@@ -301,24 +292,30 @@ def gconnect():
 
     data = answer.json()
 
-    session['username'] = data['name']
+    print 'XXXX', data
+    username = data['name']
+    session['username'] = username if username else 'Anonymous'
     session['picture'] = data['picture']
     session['email'] = data['email']
 
     # If user doesn't exist, add to database
-    user_id = getUserID(session['email'])
+    user_id = utils.getUserID(session['email'])
 
     if not user_id:
-        user_id = createUser(session)
+        user_id = utils.createUser(session)
     session['user_id'] = user_id
 
-    flash("you are now logged in as %s" % session['username'])
+    flash("You are now logged in as %s" % session['username'])
 
     return _loginWelcome(session)
 
 
 @app.route('/fbconnect', methods=['POST'])
 def fbconnect():
+    ''' Connect with facebook Oauth2 API
+
+    Taken from Udacity Authentication and Authorization Restaurant Menus example
+    '''
     if request.args.get('state') != session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
         response.headers['Content-Type'] = 'application/json'
@@ -339,7 +336,6 @@ def fbconnect():
     # strip expire tag from access token
     token = result.split("&")[0]
 
-
     url = 'https://graph.facebook.com/v2.4/me?%s&fields=name,id,email' % token
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
@@ -351,7 +347,8 @@ def fbconnect():
     session['email'] = data["email"]
     session['facebook_id'] = data["id"]
 
-    # The token must be stored in the session in order to properly logout, let's strip out the information before the equals sign in our token
+    # The token must be stored in the session in order to properly logout,
+    # let's strip out the information before the equals sign in our token
     stored_token = token.split("=")[1]
     session['access_token'] = stored_token
 
@@ -364,12 +361,12 @@ def fbconnect():
     session['picture'] = data["data"]["url"]
 
     # see if user exists
-    user_id = getUserID(session['email'])
+    user_id = utils.getUserID(session['email'])
     if not user_id:
-        user_id = createUser(session)
+        user_id = utils.createUser(session)
     session['user_id'] = user_id
 
-    flash("Now logged in as %s" % session['username'])
+    flash("You are now logged in as %s" % session['username'])
 
     return _loginWelcome(session)
 
@@ -432,29 +429,3 @@ def _loginWelcome(session):
                                        session['picture'])
 
     return output
-
-
-# User Helper Functions.
-# Taken from Udacity Authentication and Authorization Restaurant Menus example.
-
-def createUser(login_session):
-    newUser = User(name=login_session['username'],
-                   email=login_session['email'],
-                   picture=login_session['picture'])
-    db.session.add(newUser)
-    db.session.commit()
-    user = db.session.query(User).filter_by(email=login_session['email']).one()
-    return user.id
-
-
-def getUserInfo(user_id):
-    user = db.session.query(User).filter_by(id=user_id).one()
-    return user
-
-
-def getUserID(email):
-    try:
-        user = db.session.query(User).filter_by(email=email).one()
-        return user.id
-    except:
-        return None

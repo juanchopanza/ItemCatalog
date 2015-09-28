@@ -198,8 +198,6 @@ def gconnect():
 
     Taken from Udacity Authentication and Authorization Restaurant Menus example
     '''
-    CLIENT_ID = json.loads(
-        open('client_secrets.json', 'r').read())['web']['client_id']
 
     # Validate state token
     if request.args.get('state') != session['state']:
@@ -242,6 +240,9 @@ def gconnect():
         return response
 
     # Verify that the access token is valid for this app.
+    CLIENT_ID = json.loads(
+        open('client_secrets.json', 'r').read())['web']['client_id']
+
     if result['issued_to'] != CLIENT_ID:
         response = make_response(
             json.dumps("Token's client ID does not match app's."), 401)
@@ -252,35 +253,14 @@ def gconnect():
     stored_token = session.get('access_token')
     stored_gplus_id = session.get('gplus_id')
     if stored_token is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected.'),
-                                 200)
+        response = make_response(
+            json.dumps('Current user is already connected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
 
-    # Store the access token in the session for later use.
-    session['provider'] = 'google'
-    session['access_token'] = credentials.access_token
-    session['gplus_id'] = gplus_id
-
-    # Get user info
-    userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
-    params = {'access_token': credentials.access_token, 'alt': 'json'}
-    answer = requests.get(userinfo_url, params=params)
-
-    data = answer.json()
-
-    print 'XXXX', data
-    username = data['name']
-    session['username'] = username if username else 'Anonymous'
-    session['picture'] = data['picture']
-    session['email'] = data['email']
-
+    utils.ggl_load_user_info(credentials)
     # If user doesn't exist, add to database
-    user_id = utils.getUserID(session['email'])
-
-    if not user_id:
-        user_id = utils.createUser(session)
-    session['user_id'] = user_id
+    utils.register_user()
 
     return render_template('login_welcome.html',
                            username=session['username'],
@@ -313,35 +293,9 @@ def fbconnect():
     # strip expire tag from access token
     token = result.split("&")[0]
 
-    url = 'https://graph.facebook.com/v2.4/me?%s&fields=name,id,email' % token
-    h = httplib2.Http()
-    result = h.request(url, 'GET')[1]
-    # print "url sent for API access:%s"% url
-    # print "API JSON result: %s" % result
-    data = json.loads(result)
-    session['provider'] = 'facebook'
-    session['username'] = data["name"]
-    session['email'] = data["email"]
-    session['facebook_id'] = data["id"]
-
-    # The token must be stored in the session in order to properly logout,
-    # let's strip out the information before the equals sign in our token
-    stored_token = token.split("=")[1]
-    session['access_token'] = stored_token
-
-    # Get user picture
-    url = 'https://graph.facebook.com/v2.4/me/picture?%s&redirect=0&height=200&width=200' % token
-    h = httplib2.Http()
-    result = h.request(url, 'GET')[1]
-    data = json.loads(result)
-
-    session['picture'] = data["data"]["url"]
-
-    # see if user exists
-    user_id = utils.getUserID(session['email'])
-    if not user_id:
-        user_id = utils.createUser(session)
-    session['user_id'] = user_id
+    utils.fb_load_user_info(token)
+    # If user doesn't exist, add to database
+    utils.register_user()
 
     return render_template('login_welcome.html',
                            username=session['username'],

@@ -41,13 +41,23 @@ Requires: `vagrant`
     ./run.py
 
 This creates an sqlite3 database with the required (empty) tables and launches the
-application server in debug mode on port 5000. To run on a different port, pass an
+application server in production mode on port 5000. To run on a different port, pass an
 argument with the `-p` or `--port` option. For example, to run on port 8000:
 
     ./run.py --port 8000
 
+To run in debug mode, invoke 
+
+    ./run.py --config config_dev.py
+    
+To run an example with an existing `sqlite3` database, run  
+
+    ./run.pt --config config_example.py
+
 For other command line options, invoke `run.py` with the `-h` or `--help` options.
 
+Note that the `init_db.py` script also has a command line option for the configuration
+file. This allows you to define the type and name of the database to be created.
 
 #### Profit
 

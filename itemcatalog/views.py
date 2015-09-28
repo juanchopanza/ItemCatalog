@@ -25,18 +25,19 @@ def home():
     cats = db.session.query(Category).all()
     return render_template('index.html', items=items, categories=cats)
 
-# login page
+
 @app.route('/login/')
 def login():
+    '''login page'''
     state = ''.join([random.choice(string.ascii_uppercase + string.digits)
-                    for i in xrange(32)])
+                     for _ in xrange(32)])
     session['state'] = state
     return render_template('login.html', STATE=state)
 
 
-# logout page
 @app.route('/logout/')
 def logout():
+    '''logout page'''
     provider = session.get('provider')
     if provider is not None:
         if provider == 'google':
@@ -77,29 +78,6 @@ def showCategoryItems(category_id):
     return render_template('category.html', category=category, items=items)
 
 
-@app.route('/category/<category_name>/items/')
-def showCategoryItemsFromName(category_name):
-    '''Show items for a given category name'''
-    category = db.session.query(Category).filter(
-        Category.name.ilike(category_name)).one()
-
-    items = db.session.query(CatalogItem).filter_by(category_id=category.id)
-
-    return render_template('category.html', category=category, items=items)
-
-
-@app.route('/category/<category_name>/<item_name>/')
-def showItemFromNames(category_name, item_name):
-    '''Show single item'''
-    category = db.session.query(Category).filter(
-        Category.name.ilike(category_name)).one()
-
-    item = db.session.query(CatalogItem).filter_by(category_id=category.id,
-                                                   name=item_name).one()
-
-    return render_template('item.html', item=item)
-
-
 @app.route('/items/')
 def showItems():
     '''Show all items'''
@@ -112,9 +90,8 @@ def showItems():
 def newCategory():
     '''Create a new category'''
     if request.method == 'POST':
-        category = Category(
-            name=request.form['name'],
-            user_id=session['user_id'])
+        category = Category(name=request.form['name'],
+                            user_id=session['user_id'])
         db.session.add(category)
         db.session.commit()
         flash("New category %s created!" % category.name)
@@ -195,9 +172,9 @@ def deleteCatalogItem(category_id, item_id):
 
 # API end-points ===============================================================
 
-# API end-point to get all categories with items
 @app.route('/categories/JSON/')
 def getCategoriesJSON():
+    '''API end-point to get all categories with items'''
     cats = db.session.query(Category).all()
     _cats = [c.serialize for c in cats]
     for _c in _cats:
@@ -205,9 +182,9 @@ def getCategoriesJSON():
         _c['items'] = [i.serialize for i in items]
     return jsonify(Categories=_cats)
 
-# API end-point to get items for a given category ID
 @app.route('/category/<int:category_id>/JSON/')
 def getCategoryItemsJSON(category_id):
+    ''' API end-point to get items for a given category ID'''
     category = db.session.query(Category).filter_by(id=category_id).one()
     items = db.session.query(CatalogItem).filter_by(category_id=category.id)
     return jsonify(Category=[i.serialize for i in items])
@@ -305,9 +282,9 @@ def gconnect():
         user_id = utils.createUser(session)
     session['user_id'] = user_id
 
-    flash("You are now logged in as %s" % session['username'])
-
-    return _loginWelcome(session)
+    return render_template('login_welcome.html',
+                           username=session['username'],
+                           picture_url=session['picture'])
 
 
 @app.route('/fbconnect', methods=['POST'])
@@ -366,9 +343,9 @@ def fbconnect():
         user_id = utils.createUser(session)
     session['user_id'] = user_id
 
-    flash("You are now logged in as %s" % session['username'])
-
-    return _loginWelcome(session)
+    return render_template('login_welcome.html',
+                           username=session['username'],
+                           picture_url=session['picture'])
 
 
 @app.route('/debug/session')
@@ -416,16 +393,3 @@ def _fbdisconnect():
     result = h.request(url, 'DELETE')[0]
     print 'FBISCONNECT result', result
     return result
-
-
-def _loginWelcome(session):
-
-    output = '''
-    <h1>Welcome %s!</h1>
-    <img src=%s style="width: 300px;
-    height: 300px;border-radius: 150px;
-    -webkit-border-radius: 150px;
-    -moz-border-radius: 150px;">''' % (session['username'],
-                                       session['picture'])
-
-    return output

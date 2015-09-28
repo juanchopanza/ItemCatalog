@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block body %}
+    {{ super() }}
+
+    <h1>Welcome {{username}}!</h1>
+    <div class='userinfo'>
+      <img src="{{picture_url}}">
+    </div>
+
+{% endblock %}

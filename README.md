@@ -1,5 +1,5 @@
 # ItemCatalog
-A simple web application item catalog
+A simple item catalog web application
 
 ### Installation
 
@@ -11,6 +11,8 @@ clone the repo and change directory to it:
 
 #### Run locally
 
+Requires: `pip`, `virtualenv`.
+
 It is advised that you start a `virtualenv` and install the python external dependencies.
 This is trivial using `pip`:
 
@@ -18,9 +20,9 @@ This is trivial using `pip`:
     . venv/bin/activate
     pip install -r requirements.txt
 
-Requires: `pip`, `virtualenv`.
-
 #### Run in a virtual machine
+
+Requires: `vagrant`
 
 First, initialize the virtual machine:
 
@@ -32,8 +34,6 @@ Next, log into the virtual machine and change to the shared directory:
 
     vagrant ssh # logs you in as user "vagrant"
     cd /vagrant
-
-Requires: `vagrant`
 
 #### Initialize the database and launch the application
 
@@ -52,7 +52,7 @@ To run in debug mode, invoke
     
 To run an example with an existing `sqlite3` database, run  
 
-    ./run.pt --config config_example.py
+    ./run.py --config config_example.py
 
 For other command line options, invoke `run.py` with the `-h` or `--help` options.
 

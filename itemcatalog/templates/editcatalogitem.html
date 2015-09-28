@@ -10,11 +10,15 @@
 
     <form action="{{url_for('editCatalogItem', category_id=category_id, item_id=item.id )}}"
           method = 'POST'>
-        <p>Name:</p>
-        <input type='text' size='30' name='name' placeholder='{{item.name}}'>
-        <p>Description:</p>
-        <input type='text' size='250' name='description' placeholder='{{item.description}}'>
-        <p>Category</p>
+        <p>Name:
+          <input type='text' size='30' name='name' value='{{item.name}}'>
+        </p>
+
+        <p>Description:
+          <input type='text' size='250' name='description' value='{{item.description}}'>
+        </p>
+
+        <p>Category:
         <select name='category_id'>
         {% for c in categories %}
         <option name='category_id' value={{c.id}}
@@ -22,8 +26,9 @@
         {% endfor %}
         </select>
         </br></br>
-        <input type='submit' value='Edit'>
+        <input type='submit' value='Save Changes'>
+        <a href= "{{url_for('showCategoryItems', category_id=item.category_id)}}">Cancel</a>
+        </p>
     </form>
-    <a href= "{{url_for('showCategoryItems', category_id=item.category_id)}}">Cancel</a>
 
 {% endblock %}

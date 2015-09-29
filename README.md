@@ -8,7 +8,7 @@ and Safari browsers.)
 * CSRF protection for POST, PUT and DELETE operations
 * CRUD read for all users.
 * CRUD create, update and delete for authorized users
-* JSON API end-points
+* JSON and ATOM API end-points
 
 ### JSON API
 
@@ -19,6 +19,16 @@ The JSON API provides read-only access via the following URLs:
 * `/catagory/<id>/JSON/` Single category including items.
 * `/items/JSON/` List of all items.
 * `/item/<id>/JSON` Single catalog item.
+
+### ATOM API
+
+The ATOM API provides read-only access via the following URLs:
+
+* `/categories/ATOM/` List of catagories.
+* `/catagory/<id>/ATOM/` Single category including items.
+* `/items/ATOM/` List of all items.
+* `/item/<id>/ATOM` Single catalog item.
+
 
 ## Installation
 

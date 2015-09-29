@@ -219,6 +219,37 @@ def getItemJSON(item_id):
     return jsonify(Item=item.serialize)
 
 
+# ATOM API end-points ==========================================================
+
+@app.route('/categories/ATOM/')
+def getCategoriesATOM():
+    '''API end-point to get list of all categories'''
+    cats = db.session.query(Category).all()
+    return render_template('categories.xml', categories=cats)
+
+
+@app.route('/category/<int:category_id>/ATOM/')
+def getCategoryItemsATOM(category_id):
+    ''' API end-point to get category with items'''
+    category = db.session.query(Category).filter_by(id=category_id).one()
+    items = db.session.query(CatalogItem).filter_by(category_id=category.id)
+    return render_template('category.xml', name=category.name, items=items)
+
+
+@app.route('/item/<int:item_id>/ATOM/')
+def getItemATOM(item_id):
+    '''API end-point to get single item'''
+    item = db.session.query(CatalogItem).filter_by(id=item_id).one()
+    return render_template('item.xml', item=item)
+
+
+@app.route('/items/ATOM/')
+def getItemsATOM():
+    '''API end-point to get all items'''
+    items = db.session.query(CatalogItem).all()
+    return render_template('items.xml', items=items)
+
+
 # Authorization / Authentication ===============================================
 
 @app.route('/gconnect', methods=['POST'])

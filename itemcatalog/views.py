@@ -176,11 +176,11 @@ def deleteCatalogItem(category_id, item_id):
                                item=item)
 
 
-# API end-points ===============================================================
+# JSON API end-points ==========================================================
 
-@app.route('/categories/JSON/')
-def getCategoriesJSON():
-    '''API end-point to get all categories with items'''
+@app.route('/catalog/JSON/')
+def getCatalogJSON():
+    '''API end-point to get all contents of catalog'''
     cats = db.session.query(Category).all()
     _cats = [c.serialize for c in cats]
     for _c in _cats:
@@ -188,12 +188,35 @@ def getCategoriesJSON():
         _c['items'] = [i.serialize for i in items]
     return jsonify(Categories=_cats)
 
+
+@app.route('/categories/JSON/')
+def getCategoriesJSON():
+    '''API end-point to get list of all categories'''
+    cats = db.session.query(Category).all()
+    return jsonify(Categories=[c.serialize for c in cats])
+
+
 @app.route('/category/<int:category_id>/JSON/')
 def getCategoryItemsJSON(category_id):
-    ''' API end-point to get items for a given category ID'''
+    ''' API end-point to get category with items'''
     category = db.session.query(Category).filter_by(id=category_id).one()
     items = db.session.query(CatalogItem).filter_by(category_id=category.id)
-    return jsonify(Category=[i.serialize for i in items])
+    return jsonify(Category={'name': category.name,
+                             'items': [i.serialize for i in items]})
+
+
+@app.route('/items/JSON/')
+def getItemsJSON():
+    '''API end-point to get all items'''
+    items = db.session.query(CatalogItem).all()
+    return jsonify(Items=[i.serialize for i in items])
+
+
+@app.route('/item/<int:item_id>/JSON/')
+def getItemJSON(item_id):
+    '''API end-point to get single item'''
+    item = db.session.query(CatalogItem).filter_by(id=item_id).one()
+    return jsonify(Item=item.serialize)
 
 
 # Authorization / Authentication ===============================================

@@ -10,7 +10,17 @@ and Safari browsers.)
 * CRUD create, update and delete for authorized users
 * JSON API end-points
 
-### Installation
+### JSON API
+
+The JSON API provides read-only access via the following URLs:
+
+* `/catalog/JSON/` Hierarchical representation of catalog categories including items.
+* `/categories/JSON/` List of catagories.
+* `/catagory/<id>/JSON/` Single category including items.
+* `/items/JSON/` List of all items.
+* `/item/<id>/JSON` Single catalog item.
+
+## Installation
 
 You can choose to run the application natively or in a virtual machine. Fist of all,
 clone the repo and change directory to it:

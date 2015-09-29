@@ -1,30 +1,38 @@
-    <header>
-      <nav class="nav navbar-default">
-        <div class="container">
-          <ul class="nav navbar-nav">
-            <li><a href = "{{ url_for('home')}}">Home </a></li>
-            <li><a href = "{{ url_for('about')}}">About </a></li>
-            <li><a href = "{{ url_for('showCategories')}}">Categories</a></li>
-            <li><a href = "{{ url_for('showItems')}}">Items</a></li>
-            {% if 'username' not in session%}
-            <li><a href = "{{ url_for('login')}}">Login</a></li>
-            {% else %}
-            <li>Logged in as {{session['username']}}</li>
-            <li><a href = "{{ url_for('logout')}}">Logout</a></li>
-            {% endif %}
-          </ul>
-        </div>
-      </nav>
-    </header>
-
-    <div class = 'flash'>
-      {% with messages = get_flashed_messages() %}
-      {% if messages %}
-      <ul>
-            {% for message in messages %}
-                <li> <strong> {{ message }} </strong> </li>
-            {% endfor %}
-            </ul>
+<header>
+  <nav class="nav navbar-default">
+    <div class="container">
+      <ul class="nav navbar-nav">
+        <li><a href = "{{ url_for('home')}}">Home </a></li>
+        <li><a href = "{{ url_for('about')}}">About </a></li>
+        <li><a href = "{{ url_for('showCategories')}}">Categories</a></li>
+        <li><a href = "{{ url_for('showItems')}}">Items</a></li>
+        {% if 'username' not in session%}
+        <li><a href = "{{ url_for('login')}}">Login</a></li>
+        {% else %}
+        <li role="presentation" class="dropdown">
+        <a class="dropdown-toggle" data-toggle="dropdown" 
+          href="#" role="button" aria-haspopup="true" aria-expanded="false">
+          {{session['username']}} <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu" role="menu">
+          <li><a href="{{ url_for('showUserItems')}}">My Items</a></li>
+          <li><a href="{{ url_for('logout')}}">Logout</a></li>
+        </ul>
+        </li>
         {% endif %}
-    {% endwith %}
+      </ul>
     </div>
+  </nav>
+</header>
+
+<div class='container flash'>
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+  <ul>
+    {% for message in messages %}
+    <li> <strong> {{ message }} </strong> </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {% endwith %}
+</div>

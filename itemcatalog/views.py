@@ -91,6 +91,15 @@ def showItem(id):
     return render_template('item.html', item=item)
 
 
+@app.route('/useritems/')
+@utils.login_required
+def showUserItems():
+    '''Show items for currently logged in user'''
+    user_id = session['user_id']
+    items = db.session.query(CatalogItem).filter_by(user_id=user_id).all()
+    return render_template('allitems.html', items=items)
+
+
 @app.route('/categories/new/', methods=('GET', 'POST'))
 @utils.login_required
 def newCategory():

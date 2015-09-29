@@ -4,7 +4,6 @@
 
 {{ super() }}
 
-
 <div class="jumbotron">
   <h1>Welcome to Catalog App</h1>
 
@@ -20,7 +19,9 @@
     <h2>Categories</h2>
     <div>
       {% for category in categories %}
-      <div>{{category.name}}</div>
+      <div>
+      <a href="{{ url_for('showCategoryItems', category_id=category.id)}}">{{category.name}}</a>
+      </div>
       {% endfor %}
     </div>
   </div>
@@ -29,7 +30,7 @@
   <div class="col-lg-9">
     {% block main_content %}
     <h2>Latest items</h2>
-    <div class='item-list'>
+    <div>
       {% for item in items %}
       <div>{{item.name}}<span> ({{item.category.name}})</span></div>
       {% endfor %}

@@ -6,20 +6,15 @@
 {% block body %}
     {{ super() }}
 	
-	<div class = 'pane'>
-		<div class = 'header'>
+	<div class="jumbotron">
 		<h1>Catalog Items</h1>
 	</div>
 
     {% for i in items %}
-    <div class = 'nameAndPrice'>
-		  <span class = 'name'><p>{{i.name}}</p></span>
+    <div class="list-group">
+		  <h3 class="listgroup-item-heading">{{i.name}}</h3>
+      <span class="listgroup-item-text">{{i.description}}</span>
     </div>
-	
-	<div class = 'description'>
-		<p>{{i.description}}</p>
-	</div>
-	
     {% endfor %}
 
 </div>

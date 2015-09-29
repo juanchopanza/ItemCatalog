@@ -12,12 +12,12 @@
     (requires <a href = "{{url_for('login')}}">login</a>.)
     {% endif %}
     </p>
-    <div>
-        <ul>
+    <div class="list-group">
         {% for i in categories %}
-            <li><a href="{{ url_for('showCategoryItems', category_id=i.id)}}">{{i.name}}</a></li>
+            <p class="list-group-item">
+            <a href="{{ url_for('showCategoryItems', category_id=i.id)}}">{{i.name}}</a>
+            </p>
         {% endfor %}
-        </ul>
     </div>
 
     {% if 'username' in session%}

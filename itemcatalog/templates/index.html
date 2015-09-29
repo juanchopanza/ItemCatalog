@@ -1,29 +1,43 @@
 {% extends "layout.html" %}
 
 {% block body %}
-    {{ super() }}
 
-    <h1>Welcome to Catalog App</h1>
-    <div>
-        <p>The place where you can read and store various items by category</p>
-    </div>
+{{ super() }}
 
-    <div>
-      <h2>Latest items</h2>
-      <div class='item-list'>
-      {% for item in items %}
-      <div>{{item.name}}<span> ({{item.category.name}})</span></div>
-      {% endfor %}
-      </div>
-    </div>
 
+<div class="jumbotron">
+  <h1>Welcome to Catalog App</h1>
+
+  <div>
+    <p>The place where you can read and store various items by category</p>
+  </div>
+</div>
+
+
+<div class="row">
+
+  <div class="col-lg-3">
+    <h2>Categories</h2>
     <div>
-      <h2>Categories</h2>
-      <div class='category-list'>
       {% for category in categories %}
       <div>{{category.name}}</div>
       {% endfor %}
-      </div>
     </div>
+  </div>
+
+
+  <div class="col-lg-9">
+    {% block main_content %}
+    <h2>Latest items</h2>
+    <div class='item-list'>
+      {% for item in items %}
+      <div>{{item.name}}<span> ({{item.category.name}})</span></div>
+      {% endfor %}
+    </div>
+    {% endblock %}
+  </div>
+
+
+</div>
 
 {% endblock %}

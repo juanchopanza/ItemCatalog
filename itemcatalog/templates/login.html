@@ -74,31 +74,6 @@
 {{ super() }}
 
 <br>
-
-<!-- Google sign-in button -->
-<div id="signInButton">
-    <span class="g-signin"
-        data-scope="openid email"
-        data-clientid="504705863058-073o91f0nrtlba4egd89ss9osf9a452s.apps.googleusercontent.com"
-        data-redirecturi="postmessage"
-        data-accesstype="offline"
-        data-cookiepolicy="single_host_origin"
-        data-callback="googleSignInCallback"
-        data-approvalprompt="force">
-    </span>
-</div>
-
-
-<!-- Facebook sign-in button -->
-<button>
-  <fb:login-button scope="public_profile,email" onlogin="sendTokenToServer();">
-  <a href='javascript:sendTokenToServer()'>Login with Facebook</a>
-  </fb:login-button>
-</button>
-
-<br>
-<div id="result"></div>
-
 <!-- Google sign-in callback-->
 
 <script>
@@ -131,6 +106,43 @@ function googleSignInCallback(authResult) {
     } 
 }
 </script>
+
+<div class="jumbotron">
+  <h2>Login to ItemCatalog App</h2>
+
+  <div>
+    <p>
+    We delegate your security to trusted 3rd party providers so you can
+    use this app in tranquility. Pick one of the providers listed below,
+    log in, and enjoy the ride.
+    </p>
+  </div>
+</div>
+
+<!-- Google sign-in button -->
+<div id="signInButton">
+    <span class="g-signin"
+        data-scope="openid email"
+        data-clientid="504705863058-073o91f0nrtlba4egd89ss9osf9a452s.apps.googleusercontent.com"
+        data-redirecturi="postmessage"
+        data-accesstype="offline"
+        data-cookiepolicy="single_host_origin"
+        data-callback="googleSignInCallback"
+        data-approvalprompt="force">
+    </span>
+</div>
+
+
+<!-- Facebook sign-in button -->
+<button>
+  <fb:login-button scope="public_profile,email" onlogin="sendTokenToServer();">
+  <a href='javascript:sendTokenToServer()'>Login with Facebook</a>
+  </fb:login-button>
+</button>
+
+<br>
+<div id="result"></div>
+
 
 
 {% endblock %}

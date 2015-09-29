@@ -42,7 +42,7 @@
       console.log('Successful login for: ' + response.name);
      $.ajax({
       type: 'POST',
-      url: '/fbconnect?state={{STATE}}',
+      url: '/fbconnect?_csrf_token={{csrf_token()}}',
       processData: false,
       data: access_token,
       contentType: 'application/octet-stream; charset=utf-8',
@@ -110,7 +110,7 @@ function googleSignInCallback(authResult) {
         // Send the one-time-use code to the server, if the server responds, write a 'login successful' message to the web page and then redirect back to the main restaurants page
         $.ajax({
             type: 'POST',
-            url: '/gconnect?state={{STATE}}',
+            url: '/gconnect?_csrf_token={{csrf_token()}}',
             processData: false,
             data: authResult['code'],
             contentType: 'application/octet-stream; charset=utf-8',

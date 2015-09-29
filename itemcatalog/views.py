@@ -13,6 +13,7 @@ from itemcatalog.models import Category, CatalogItem, User
 from itemcatalog import utils
 from . import app
 from . import db
+from . import csrf
 
 
 # Home page
@@ -29,10 +30,9 @@ def home():
 @app.route('/login/')
 def login():
     '''login page'''
-    state = ''.join([random.choice(string.ascii_uppercase + string.digits)
-                     for _ in xrange(32)])
-    session['state'] = state
-    return render_template('login.html', STATE=state)
+    token = csrf.get_csrf_token()
+    app.logger.debug('Generated CSRF session token %s', token)
+    return render_template('login.html')
 
 
 @app.route('/logout/')
@@ -199,7 +199,6 @@ def getCategoryItemsJSON(category_id):
 # Authorization / Authentication ===============================================
 
 @app.route('/gconnect', methods=['POST'])
-@utils.check_state_token
 def gconnect():
     ''' Connect with google Oauth2 API
 
@@ -246,7 +245,7 @@ def gconnect():
     if result['issued_to'] != client_id:
         response = make_response(
             json.dumps("Token's client ID does not match app's."), 401)
-        print "Token's client ID does not match app's."
+        app.logger.warning("Token's client ID does not match app's.")
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -268,7 +267,6 @@ def gconnect():
 
 
 @app.route('/fbconnect', methods=['POST'])
-@utils.check_state_token
 def fbconnect():
     ''' Connect with facebook Oauth2 API
 
@@ -276,7 +274,7 @@ def fbconnect():
     '''
 
     access_token = request.data
-    print "access token received %s " % access_token
+    app.logger.debug("Access token received %s", access_token)
 
     app_id = json.loads(open('fb_client_secrets.json', 'r').read())[
         'web']['app_id']
@@ -302,7 +300,8 @@ def fbconnect():
 @app.route('/debug/session')
 def _dump_session():
     ret = [session.keys(),
-           { k: session.get(k) for k in ('username', 'user_id', 'gplus_id', 'email')}]
+           { k: session.get(k) for k in ('username', 'user_id', 'gplus_id',
+                                         'email', '_csrf_token')}]
     return json.dumps(ret)
 
 @app.route('/debug/clearsession/')
@@ -328,7 +327,7 @@ def _gdisconnect():
     url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
-    print 'GDISCONNECT result', result
+    app.logger.debug('GDISCONNECT result %s', result)
     return result
 
 
@@ -342,5 +341,5 @@ def _fbdisconnect():
     url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id,access_token)
     h = httplib2.Http()
     result = h.request(url, 'DELETE')[0]
-    print 'FBISCONNECT result', result
+    app.logger.debug('FBISCONNECT result %s', result)
     return result

@@ -1,6 +1,15 @@
 # ItemCatalog
 A simple item catalog web application
 
+## Features:
+
+* 3rd party authentication with Google+ and Facebook (FB limited to google chrome
+and Safari browsers.)
+* CSRF protection for POST, PUT and DELETE operations
+* CRUD read for all users.
+* CRUD create, update and delete for authorized users
+* JSON API end-points
+
 ### Installation
 
 You can choose to run the application natively or in a virtual machine. Fist of all,

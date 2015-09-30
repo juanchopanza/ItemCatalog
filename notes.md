@@ -25,9 +25,6 @@ of the code-base. Again, in real code I'd explore 3rd party solutions.
 
 ## Known issues
 
-* The Facebook login does not work on Firefox. I have not managed to find a solution at
-the time of writing.
-
 * Facebook login results in a warning about screen sizes and pop-ups.
 Apparently this would not happen in production, but it is annoying nonetheless.
 
@@ -50,3 +47,4 @@ following first:
 * Creation timestamps for categories and items
 * Edit category
 * User pages.
+* More 3rd party oauth providers (github, twitter, amazon...)

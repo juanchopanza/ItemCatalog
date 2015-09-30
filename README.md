@@ -3,8 +3,7 @@ A simple item catalog web application
 
 ## Features:
 
-* 3rd party authentication with Google+ and Facebook (FB limited to google chrome
-and Safari browsers.)
+* 3rd party authentication with Google+ and Facebook
 * CSRF protection for POST, PUT and DELETE operations
 * CRUD read for all users.
 * CRUD create, update and delete for authorized users

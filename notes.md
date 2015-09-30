@@ -31,6 +31,11 @@ the time of writing.
 * Facebook login results in a warning about screen sizes and pop-ups.
 Apparently this would not happen in production, but it is annoying nonetheless.
 
+* Secrets in public repo. In order to make the app easily testable and usable by 3rd
+parties, the client secrets are stored in this public repository. That isn't ideal
+from a security point of view. If and when this app gets put online new secrets will
+have to be generated and stored elsewhere.
+
 ## Notes on Functionality
 
 Although many of the "exceeds expectations" criteria are related to CRUD with images,

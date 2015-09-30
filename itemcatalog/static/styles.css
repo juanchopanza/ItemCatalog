@@ -3,7 +3,6 @@
  * full-stack foundations restaurant menus and Oauth2 projects.
  *
  */
-/*
 .flash {
     background-color: #98FB98;
     width:100%;
@@ -13,11 +12,6 @@
 .flash li {
     list-style-type: none;
     text-align: center;
-}
-*/
-
-ul {
-    list-style-type: none;
 }
 
 .userinfo img {

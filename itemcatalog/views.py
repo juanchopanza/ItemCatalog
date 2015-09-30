@@ -1,15 +1,11 @@
 '''Views for Item Catalog App'''
-import random
-import string
 import json
 from flask import render_template, request, redirect, url_for, flash, jsonify
-from flask import make_response
-from flask import g, session, jsonify
+from flask import session, make_response
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 import httplib2
-import requests
-from itemcatalog.models import Category, CatalogItem, User
+from itemcatalog.models import Category, CatalogItem
 from itemcatalog import utils
 from . import app
 from . import db
@@ -22,6 +18,7 @@ from . import csrf
 @app.route('/home/')
 @app.route('/index/')
 def home():
+    '''Main enrty point'''
     items = db.session.query(CatalogItem).all()
     cats = db.session.query(Category).all()
     return render_template('index.html', items=items, categories=cats)
@@ -50,7 +47,7 @@ def logout():
         if response['status'] == '200':
             flash("You have been successfully logged out!")
         else:
-            flash("An error ocurred when loggin out. Your browser session has been cleared!")
+            flash("An error ocurred when logging out. Your browser session has been cleared!")
     else:
         flash('You were not logged in')
 
@@ -83,6 +80,7 @@ def showItems():
     '''Show all items'''
     items = db.session.query(CatalogItem).all()
     return render_template('allitems.html', items=items)
+
 
 @app.route('/item/<int:id>/')
 def showItem(id):
@@ -361,24 +359,39 @@ def fbconnect():
 
 
 @app.route('/debug/session')
+@utils.debug_required
 def _dump_session():
+    '''Dump some session data.
+
+    Useful for debugging. Restricted to application runnng
+    in DEBUG mode.
+    '''
     ret = [session.keys(),
            { k: session.get(k) for k in ('username', 'user_id', 'gplus_id',
                                          'email', '_csrf_token')}]
     return json.dumps(ret)
 
-@app.route('/debug/clearsession/')
+
+@app.route('/user/clearsession/')
 def _clear_session():
+    '''Totally slear a session.
+
+    Good for recovering from rare cases where session gets in a confused
+    state.
+    '''
     session.clear()
     return redirect('/')
 
 
 # Helper functions
 
-# Disonnect with google Oauth2 API
-# Revokes current user's token and resets their session
-# Based on exmple from Udacity Authentication and Authorization Restaurant Menus
 def _gdisconnect():
+    '''Disonnect with google Oauth2 API
+
+    Revokes current user's token and resets their session
+    Based on exmple from Udacity Authentication and Authorization Restaurant Menus
+    '''
+
     # Only disconnect a connected user.
     access_token = session.get('access_token')
     if access_token is None:
@@ -394,10 +407,13 @@ def _gdisconnect():
     return result
 
 
-# Disonnect with facebook Oauth2 API
-# Revokes current user's token and resets their session
-# Based on example from Udacity Authentication and Authorization Restaurant Menus
 def _fbdisconnect():
+    '''Disonnect with facebook Oauth2 API
+
+    Revokes current user's token and resets their session
+    Based on example from Udacity Authentication and Authorization Restaurant Menus
+    '''
+
     facebook_id = session['facebook_id']
     # The access token must be included to successfully logout
     access_token = session['access_token']

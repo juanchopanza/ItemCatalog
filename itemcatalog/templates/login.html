@@ -73,7 +73,6 @@
 
 {{ super() }}
 
-<br>
 <!-- Google sign-in callback-->
 
 <script>
@@ -119,8 +118,12 @@ function googleSignInCallback(authResult) {
   </div>
 </div>
 
+
+<div id="result"></div>
+
 <!-- Google sign-in button -->
-<div id="signInButton">
+<!--<div id="signInButton"> -->
+<div>
     <span class="g-signin"
         data-scope="openid email"
         data-clientid="504705863058-073o91f0nrtlba4egd89ss9osf9a452s.apps.googleusercontent.com"
@@ -134,15 +137,11 @@ function googleSignInCallback(authResult) {
 
 
 <!-- Facebook sign-in button -->
-<button>
-  <fb:login-button scope="public_profile,email" onlogin="sendTokenToServer();">
-  <a href='javascript:sendTokenToServer()'>Login with Facebook</a>
+<div>
+  <fb:login-button scope="public_profile,email" size="large" onlogin="sendTokenToServer();">
+  <a href='javascript:sendTokenToServer()'>Login</a>
   </fb:login-button>
-</button>
-
-<br>
-<div id="result"></div>
-
+</div>
 
 
 {% endblock %}

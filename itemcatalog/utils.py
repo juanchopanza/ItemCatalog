@@ -4,9 +4,10 @@ from functools import wraps
 import json
 import httplib2
 import requests
-from flask import session, request, redirect, url_for, flash
+from flask import session, request, redirect, url_for, flash, abort
 from .models import User
 from . import db
+from . import app
 
 
 def login_required(f):
@@ -23,6 +24,22 @@ def login_required(f):
         if 'username' not in session:
             flash('The page you visited requires you to be logged in!')
             return redirect(url_for('login', next=request.url))
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
+def debug_required(f):
+    '''Decorator to protect debug pages.
+
+    Calls flask.abort(403) if attempt is made to access page outside
+    debug mode.
+    '''
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not app.debug:
+            flash('The page you visited requires you to be in DEBUG mode!')
+            abort(403)
         return f(*args, **kwargs)
 
     return decorated_function

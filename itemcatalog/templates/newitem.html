@@ -15,6 +15,7 @@
     <input type='text' size='250' name='description'>
     </br></br>
     <input type='submit' value='Create'>
+    <a href = "{{ url_for('showCategoryItems', category_id=category_id)}}"> Cancel </a>
     <input name="_csrf_token" type="hidden" value="{{ csrf_token() }}">
 </form>
 

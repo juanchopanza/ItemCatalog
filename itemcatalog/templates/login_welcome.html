@@ -1,13 +1,10 @@
-{% extends "layout.html" %}
-
-{% block title %}Welcome{% endblock %}
-
-{% block body %}
-    {{ super() }}
-
+<div class="container">
+  <div class="col-lg-8">
     <h1>Welcome {{username}}!</h1>
-    <div class='userinfo'>
-      <img src="{{picture_url}}">
-    </div>
+    <p>You have been successfully logged in!</p>
+  </div>
+  <div class='userinfo col-lg-4'>
+    <img src="{{picture_url}}">
+  </div>
+</div>
 
-{% endblock %}

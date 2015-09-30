@@ -10,16 +10,19 @@
         </title>
 
         {% block head_scripts %}
-        <!-- Latest compiled and minified CSS -->
+        <!-- Latest compiled and minified Bootstrap CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 
-        <!-- Optional theme -->
+        <!-- Optional Bootstrap theme -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
 
+        <!-- JQuery. Needed for Bootstrap JS -->
         <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+
         <!-- Latest compiled and minified JavaScript -->
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
+        <!-- Additional styling -->
         <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
         {% endblock %}
 

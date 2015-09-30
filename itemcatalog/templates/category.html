@@ -4,40 +4,36 @@
 
 
 {% block body %}
-    {{ super() }}
-	
-	<div class = 'pane'>
-		<div class = 'header'>
-		<h1>{{ category.name }}</h1>
-	</div>
+{{ super() }}
 
-  {% if 'username' in session %}
-	<a href = '{{url_for('newCatalogItem', category_id = category.id) }}'>Create New Item</a>
+<div class = 'jumbotron'>
+  <h1>{{ category.name }}</h1>
+  <p>This is a list of all items stored under the {{category.name}} category.</p>
+{% if 'username' in session %}
+  <p>
+  <a class="btn btn-primary btn-lg" href='{{url_for('newCatalogItem', category_id = category.id) }}' role="button">Create New Item</a>
+  </p>
   {% endif %}
+</div>
 
-    {% for i in items %}
-    <div class = 'catalog-item'>
-		<span class = 'item-name'>
-      <a href = '{{url_for('showItem', id = i.id)}}'>
-        {{i.name}}
-      </a>
-    </span>
-	</div>
-
+{% for i in items %}
+<div class="col-lg-12">
+<div class="row panel panel-default">
+  <div class="panel-body">
+  <h3>
+    <a href = '{{url_for('showItem', id = i.id)}}'>{{i.name}}</a>
+  </h3>
+  <p>{{i.description}}</p>
 
   {% if 'username' in session and i.user_id == session['user_id'] %}
-	<div class = "editdeletepane">
-
-	    <a class='btn' href='{{url_for('editCatalogItem',category_id = category.id, item_id=i.id)}}' >
-            Edit
-        </a>
-	    <a class='btn delete' href='{{url_for('deleteCatalogItem', category_id = category.id, item_id=i.id)}}'>
-            Delete
-        </a>
-	</div>
+    <a href='{{url_for('editCatalogItem',category_id = category.id, item_id=i.id)}}' >Edit</a>
+    <a href='{{url_for('deleteCatalogItem', category_id = category.id, item_id=i.id)}}'>Delete</a>
   {% endif %}
 
-    {% endfor %}
+</div>
+</div>
+</div>
+{% endfor %}
 
 
 </div>

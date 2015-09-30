@@ -4,32 +4,24 @@
 
 
 {% block body %}
-    {{ super() }}
-	
-	<div class = 'pane'>
-		<div class = 'header'>
-		<h1>Catalog Item</h1>
-	</div>
+{{ super() }}
 
-  <div class = 'catalog-item'>
-		<span class = 'item-name'>{{item.name}}</span>
-		<span class = 'item-description'>
-		    <p>{{item.description}} </p>
-	    </span>
-  </div>
+<div class="col-lg-8">
 
-  {% if 'username' in session and item.user_id == session['user_id'] %}
-    <nav class="navbar">
-      <a href='{{url_for('editCatalogItem',category_id = item.category_id, item_id=item.id)}}' >
-        Edit
-      </a>
-      <a href='{{url_for('deleteCatalogItem', category_id = item.category_id, item_id=item.id)}}'>
-        Delete
-      </a>
-    </nav>
-    {% endif %}
+  <h3>{{item.name}}</h3>
+  <p>{{item.description}} </p>
+  <p><em>Stored under {{item.category.name}} by {{item.user.name}}</em></p> 
 
+{% if 'username' in session and item.user_id == session['user_id'] %}
+<nav class="navbar">
+  <a href='{{url_for('editCatalogItem',category_id = item.category_id, item_id=item.id)}}' >
+    Edit
+  </a>
+  <a href='{{url_for('deleteCatalogItem', category_id = item.category_id, item_id=item.id)}}'>
+    Delete
+  </a>
+</nav>
+{% endif %}
 
 </div>
-
 {% endblock %}

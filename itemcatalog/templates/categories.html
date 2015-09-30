@@ -3,27 +3,31 @@
 {% block title %}Categories{% endblock %}
 
 {% block body %}
-    {{ super() }}
+{{ super() }}
 
-    <h2>Categories</h2>
-    <p>
-    This is the list of existing categories. You can add new categories 
-    {% if 'username' not in session %}
-    (requires <a href = "{{url_for('login')}}">login</a>.)
-    {% endif %}
-    </p>
-    <div class="list-group">
-        {% for i in categories %}
-            <p class="list-group-item">
-            <a href="{{ url_for('showCategoryItems', category_id=i.id)}}">{{i.name}}</a>
-            </p>
-        {% endfor %}
+<div class="jumbotron">
+  <h1>Categories</h1>
+  <p>
+  This is the complete list of existing categories. You can add new categories if
+  you're logged in.
+  </p>
+  {% if 'username' in session %}
+  <a class="btn btn-primary btn-lg" role="button"
+    href = "{{ url_for('newCategory')}}">Add a New Category</a>
+  {% endif %}
+</div>
+
+<div class="col-lg-12">
+{% for i in categories %}
+  <div class="row panel panel-default">
+    <div class="panel-body">
+      <a href="{{ url_for('showCategoryItems', category_id=i.id)}}">
+        <h4>{{i.name}}</h4>
+      </a>
     </div>
+  </div>
 
-    {% if 'username' in session%}
-    <nav class="navbar">
-      <a href = "{{ url_for('newCategory')}}">Add a New Category</a>
-    </nav>
-    {% endif %}
+{% endfor %}
 
+</div>
 {% endblock %}

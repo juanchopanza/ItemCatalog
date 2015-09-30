@@ -8,15 +8,18 @@
 	
 	<div class="jumbotron">
 		<h1>Catalog Items</h1>
+    <p>These are all the catalog items, regardless of category</p>
 	</div>
 
+    <div class="row">
     {% for i in items %}
-    <div class="list-group">
-		  <h3 class="listgroup-item-heading">{{i.name}}</h3>
-      <span class="listgroup-item-text">{{i.description}}</span>
-    </div>
+      <div class="col-lg-6">
+        <h3>{{i.name}}</h3>
+        <p>{{i.description}}</p>
+      </div>
     {% endfor %}
 
+    </div>
 </div>
 
 {% endblock %}

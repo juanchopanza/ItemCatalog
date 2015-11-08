@@ -81,7 +81,15 @@ For example
 
 The `PostgreSQL` initialization assumes an existing, empty databasse named `itemcatalog`,
 and that the user running the script has password-less access to it. To fine tune this
-behaviour, edit the `config_prod.py` file or create a new configuration.
+behaviour, edit the `config_prod.py` file or create a new configuration. To create a
+postgres database as usef `vagrant`, type
+
+```shell
+createdb database_name
+```
+
+Note: the `vagrant` configuration takes care of creating a postgres database named
+`itemcatlog`.
 
 For more information, invoke the script with the `-h` or `--help` option.
 

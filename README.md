@@ -63,16 +63,25 @@ Next, log into the virtual machine and change to the shared directory:
     vagrant ssh # logs you in as user "vagrant"
     cd /vagrant
 
-#### Initialize the database and launch the application
+#### Initialize the database
+
+The database initialization step should only be performed once for a given database. A
+script is provided to populate the database with the required tables corresponding to
+the applications models:
 
     ./init_db.py
 
-This creates an sqlite3 database with the required (empty) tables. Different database
+By default, this creates an sqlite3 database with the required (empty) tables.
+Different database
 configurations can be selected by passing one of the config.py files as parameter.
 For example
 
     ./init_dg.py -c config.py # Initialize SQLite database
     ./init_dg.py -c config_prod.py # Initialize PostgreSQL database
+
+The `PostgreSQL` initialization assumes an existing, empty databasse named `itemctlog`,
+and that the user running the script has password-less access to it. To fine tune this
+behaviour, edit the `config_prod.py` file or create a new configuration.
 
 For more information, invoke the script with the `-h` or `--help` option.
 
@@ -80,21 +89,21 @@ For more information, invoke the script with the `-h` or `--help` option.
 
     ./run.py
 
-This launches application server in production mode on port 5000. To run on a different 
+This launches application server in production mode on port 5000. To run on a different
 port, pass an
 argument with the `-p` or `--port` option. For example, to run on port 8000:
 
     ./run.py --port 8000
 
-To run in debug mode with an `sqlite3` database, invoke 
+To run in debug mode with an `sqlite3` database, invoke
 
     ./run.py --config config_dev.py
-    
-To run an example with an existing `sqlite3` database, run  
+   
+To run an example with an existing `sqlite3` database, run 
 
     ./run.py --config config_example.py
 
-To run an example with a `PostgreSQL` database on port 8080, run  
+To run an example with a `PostgreSQL` database on port 8080, run 
 
     ./run.py --port 8080 --config config_prod.py
 

@@ -66,15 +66,27 @@ Next, log into the virtual machine and change to the shared directory:
 #### Initialize the database and launch the application
 
     ./init_db.py
+
+This creates an sqlite3 database with the required (empty) tables. Different database
+configurations can be selected by passing one of the config.py files as parameter.
+For example
+
+    ./init_dg.py -c config.py # Initialize SQLite database
+    ./init_dg.py -c config_prod.py # Initialize PostgreSQL database
+
+For more information, invoke the script with the `-h` or `--help` option.
+
+#### Launch the application
+
     ./run.py
 
-This creates an sqlite3 database with the required (empty) tables and launches the
-application server in production mode on port 5000. To run on a different port, pass an
+This launches application server in production mode on port 5000. To run on a different 
+port, pass an
 argument with the `-p` or `--port` option. For example, to run on port 8000:
 
     ./run.py --port 8000
 
-To run in debug mode, invoke 
+To run in debug mode with an `sqlite3` database, invoke 
 
     ./run.py --config config_dev.py
     
@@ -82,10 +94,11 @@ To run an example with an existing `sqlite3` database, run
 
     ./run.py --config config_example.py
 
-For other command line options, invoke `run.py` with the `-h` or `--help` options.
+To run an example with a `PostgreSQL` database on port 8080, run  
 
-Note that the `init_db.py` script also has a command line option for the configuration
-file. This allows you to define the type and name of the database to be created.
+    ./run.py --port 8080 --config config_prod.py
+
+For other command line options, invoke `run.py` with the `-h` or `--help` options.
 
 #### Profit
 

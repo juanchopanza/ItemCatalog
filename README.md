@@ -79,7 +79,7 @@ For example
     ./init_dg.py -c config.py # Initialize SQLite database
     ./init_dg.py -c config_prod.py # Initialize PostgreSQL database
 
-The `PostgreSQL` initialization assumes an existing, empty databasse named `itemctlog`,
+The `PostgreSQL` initialization assumes an existing, empty databasse named `itemcatalog`,
 and that the user running the script has password-less access to it. To fine tune this
 behaviour, edit the `config_prod.py` file or create a new configuration.
 

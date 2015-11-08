@@ -76,8 +76,8 @@ Different database
 configurations can be selected by passing one of the config.py files as parameter.
 For example
 
-    ./init_dg.py -c config.py # Initialize SQLite database
-    ./init_dg.py -c config_prod.py # Initialize PostgreSQL database
+    ./init_db.py -c config.py # Initialize SQLite database
+    ./init_db.py -c config_prod.py # Initialize PostgreSQL database
 
 The `PostgreSQL` initialization assumes an existing, empty databasse named `itemcatalog`,
 and that the user running the script has password-less access to it. To fine tune this

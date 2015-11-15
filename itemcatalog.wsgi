@@ -3,11 +3,11 @@ import sys
 import os
 import logging
 
-activate_this = '/var/www/catalog/venv/bin/activate_this.py'
-execfile(activate_this, dict(__file__=activate_this))
-sys.path.insert(0, '/var/www/catalog/')
-os.environ['SECRETS_PATH'] = '/var/www/catalog/'
+VENV = '/var/www/catalog'
 
+activate_this = '%s/bin/activate_this.py' % VENV
+execfile(activate_this, dict(__file__=activate_this))
+os.environ['SECRETS_PATH'] = '%s/.secrets' % VENV
 
 from itemcatalog import app as application
 

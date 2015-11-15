@@ -43,7 +43,7 @@ config = {
     'packages': find_packages(),
     'scripts': ['run.py',
                 'init_db.py',
-                'app.wsgi',
+                'itemcatalog.wsgi',
                 ],
     'name': 'itemcatalog',
     'include_package_data': True,

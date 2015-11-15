@@ -41,12 +41,13 @@ clone the repo and change directory to it:
 
 Requires: `pip`, `virtualenv`.
 
-It is advised that you start a `virtualenv` and install the python external dependencies.
+It is advised that you start a `virtualenv` and install the python applicaiton
+with external dependencies.
 This is trivial using `pip`:
 
     virtualenv venv
     . venv/bin/activate
-    pip install -r requirements.txt
+    pip install -e .
 
 #### Run in a virtual machine
 
@@ -73,16 +74,13 @@ the applications models:
 
 By default, this creates an sqlite3 database with the required (empty) tables.
 Different database
-configurations can be selected by passing one of the config.py files as parameter.
+configurations can be selected by using the command line parameters.
 For example
 
-    ./init_db.py -c config.py # Initialize SQLite database
-    ./init_db.py -c config_prod.py # Initialize PostgreSQL database
+    ./init_db.py -t qlite -n test_db # Initialize SQLite database "test_db.db"
+    ./init_db.py -t psql -n items    # Initialize PostgreSQL database "items"
 
-The `PostgreSQL` initialization assumes an existing, empty databasse named `itemcatalog`,
-and that the user running the script has password-less access to it. To fine tune this
-behaviour, edit the `config_prod.py` file or create a new configuration. To create a
-postgres database as usef `vagrant`, type
+To manually create a postgres database as usef `vagrant`, type
 
 ```shell
 createdb database_name

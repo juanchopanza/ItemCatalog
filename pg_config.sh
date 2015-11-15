@@ -5,6 +5,8 @@ apt-get -qqy install python-sqlalchemy
 apt-get -qqy install python-flask
 apt-get -qqy install python-flask-sqlalchemy
 apt-get -qqy install python-pip
+apt-get -qqy install python-virtualenv
+apt-get -qqy install git
 pip install bleach
 pip install oauth2client
 pip install requests

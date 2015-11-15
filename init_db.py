@@ -19,8 +19,8 @@ def parse_args():
 
 
 if __name__ == '__main__':
-    basedir = os.path.abspath(os.path.dirname(__file__))
+
     args = parse_args()
-    config_file = os.path.join(basedir, args.config)
+    config_file = os.path.join(os.getcwd(), args.config)
     app.config.from_pyfile(config_file)
     db.create_all()

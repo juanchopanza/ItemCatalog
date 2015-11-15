@@ -13,7 +13,7 @@ from . import db
 from . import csrf
 
 
-_SPATH = app.config.get('SECRETS_PATH', '.')
+_SPATH = os.environ.get('SECRETS_PATH', '.')
 GCLIENTS = os.path.join(_SPATH, 'client_secrets.json')
 FBCLIENTS = os.path.join(_SPATH, 'fb_client_secrets.json')
 

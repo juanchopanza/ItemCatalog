@@ -1,2 +1,3 @@
+include requirements.txt
 recursive-include itemcatalog/templates *
 recursive-include itemcatalog/static *

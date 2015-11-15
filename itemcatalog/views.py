@@ -1,5 +1,6 @@
 '''Views for Item Catalog App'''
 import json
+import os
 from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask import session, make_response
 from oauth2client.client import flow_from_clientsecrets
@@ -11,6 +12,10 @@ from . import app
 from . import db
 from . import csrf
 
+
+_SPATH = app.config.get('SECRETS_PATH', '.')
+GCLIENTS = os.path.join(_SPATH, 'client_secrets.json')
+FBCLIENTS = os.path.join(_SPATH, 'fb_client_secrets.json')
 
 # Home page
 @app.route('/')
@@ -271,7 +276,7 @@ def gconnect():
 
     try:
         # Upgrade the authorization code into a credentials object
-        oauth_flow = flow_from_clientsecrets('client_secrets.json', scope='')
+        oauth_flow = flow_from_clientsecrets(GCLIENTS, scope='')
         oauth_flow.redirect_uri = 'postmessage'
         credentials = oauth_flow.step2_exchange(auth_code)
     except FlowExchangeError:
@@ -301,7 +306,7 @@ def gconnect():
 
     # Verify that the access token is valid for this app.
     client_id = json.loads(
-        open('client_secrets.json', 'r').read())['web']['client_id']
+        open(GCLIENTS, 'r').read())['web']['client_id']
 
     if result['issued_to'] != client_id:
         response = make_response(
@@ -337,10 +342,10 @@ def fbconnect():
     access_token = request.data
     app.logger.debug("Access token received %s", access_token)
 
-    app_id = json.loads(open('fb_client_secrets.json', 'r').read())[
+    app_id = json.loads(open(FBCLIENTS, 'r').read())[
         'web']['app_id']
     app_secret = json.loads(
-        open('fb_client_secrets.json', 'r').read())['web']['app_secret']
+        open(FBCLIENTS, 'r').read())['web']['app_secret']
     url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (
         app_id, app_secret, access_token)
     h = httplib2.Http()

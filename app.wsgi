@@ -1,16 +1,17 @@
 #!/usr/bin/env python
+import sys
+import logging
 
 activate_this = '/var/www/catalog/venv/bin/activate_this.py'
 execfile(activate_this, dict(__file__=activate_this))
+sys.path.insert(0, '/var/www/catalog/')
 
-from itemcatalog import app
-import os
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///itemcatalog'
-app.config['DEBUG'] = True
-app.config['SECRET_KEY'] = 1234
-if __name__ == '__main__':
-    pass
-    #basedir = os.path.abspath(os.path.dirname(__file__))
-    #kapp.config.from_pyfile(config_file)
-    #app.run(host='0.0.0.0', port=args.port)
+from itemcatalog import app as application
+
+logging.basicConfig(stream=sys.stderr)
+application.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://catalog:<CATALOG_PWD>@localhost/itemcatalog'
+application.config['DEBUG'] = True
+application.config['SQLALCHEMY_ECHO'] = True
+application.config['SECRET_KEY'] = '1234'
+application.config['SECRETS_PATH'] = '/var/www/catalog/'
